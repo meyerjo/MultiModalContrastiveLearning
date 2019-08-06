@@ -200,6 +200,12 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False):
 
     train_dir, val_dir = _get_directories(dataset, input_dir)
 
+    if dataset.name != 'C10' and \
+        not (os.path.exists(train_dir) and os.path.exists(val_dir)):
+        raise BaseException('train_dir or val_dir not exists: {}, {}'.format(
+            train_dir, val_dir
+        ))
+
     if dataset == Dataset.C10:
         num_classes = 10
         train_transform = TransformsC10()
