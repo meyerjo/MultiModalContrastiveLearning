@@ -3,6 +3,7 @@ import pickle
 import re
 import sys
 import numpy as np
+import torch
 
 from PIL import Image
 from torchvision.datasets import VisionDataset
@@ -24,8 +25,10 @@ class Falling_Things_Dataset(VisionDataset):
         if download:
             raise NotImplementedError('has not been implemented')
 
+        print('Collecting classes...')
         # TODO:  These need to be replace by the actual files in the root dir
         classes_in_root = [f for f in os.listdir(root)]
+        print('Collecting all specific files...')
         files_list = []
         for c in classes_in_root:
             files_list += [
@@ -33,14 +36,18 @@ class Falling_Things_Dataset(VisionDataset):
                 if os.path.isfile(os.path.join(self.root, c, f))
             ]
 
+        print('Grouping files by filestem')
         # Group them by filestem
         # TODO: test this with multiple modalities
         files_dict = dict()
         for (file_path, cl, file_name) in files_list:
-            filestem, modality, extension = re.match('^([^\.]+)\.(.+)\.(jpg)$', file_name).groups()
+            m = re.match('^([^\.]+)\.(.*)\.(jpg)$', file_name)
+            if m is None:
+                continue
+            filestem, modality, extension = m.groups()
             # The Image Filestem is not unique so we need to add the class as well
-            dict_key = cl + filestem
-            if filestem not in files_dict:
+            dict_key = '{}_{}'.format(cl, filestem)
+            if dict_key not in files_dict:
                 files_dict[dict_key] = {
                     'file_paths': [],
                     'file_names': [],
@@ -51,6 +58,11 @@ class Falling_Things_Dataset(VisionDataset):
             files_dict[dict_key]['file_names'].append(file_name)
             files_dict[dict_key]['modalities'].append(modality)
 
+        # make sure we have the same number of modality-entries for each element
+        assert(len(set([len(item['modalities']) for k, item in files_dict.items()])) == 1)
+
+
+        print('Loading the data...')
         self.data = []
         self.targets = []
         self.classes = set()
@@ -58,6 +70,9 @@ class Falling_Things_Dataset(VisionDataset):
         # TODO: how to handle different image sizes
         # now load the picked numpy arrays
         for key, entries in files_dict.items():
+            if len(self.data) % 1000 == 0:
+                print('...loaded {} data points...'.format(len(self.data)))
+
             entry = {
                 'data': [],
                 'modality': []
@@ -65,8 +80,7 @@ class Falling_Things_Dataset(VisionDataset):
 
             for i in range(len(entries['file_paths'])):
                 data = np.array(
-                    Image.open(entries['file_paths'][i])
-                )
+                    Image.open(entries['file_paths'][i]))
                 entry['data'] += [data]
                 entry['modality'] += [entries['modalities'][i]]
             assert(len(entry['modality']) <= 2)
@@ -90,6 +104,7 @@ class Falling_Things_Dataset(VisionDataset):
             tuple: (image, target) where target is index of the target class.
         """
         img_dict, target = self.data[index], self.targets[index]
+        target = self.class_to_idx[target]
 
         image_per_modality = img_dict['data']
 
@@ -105,7 +120,7 @@ class Falling_Things_Dataset(VisionDataset):
 
         if self.target_transform is not None:
             target = self.target_transform(target)
-        print(len(image_per_modality))
+
         if len(image_per_modality) == 1:
             return pil_images[0], target
         elif len(image_per_modality) == 2:

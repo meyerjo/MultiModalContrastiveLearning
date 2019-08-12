@@ -264,14 +264,12 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False):
         test_dataset = datasets.ImageFolder(val_dir, test_transform)
     elif dataset == Dataset.FALLINGTHINGS:
         num_classes = 21
-        # TODO: validate/implement this
-        print('Transformed currently just copied from dataset')
         train_transform = TransformsFallingThings128()
-        test_transform = train_transform.test_transform
+        test_transform = train_transform.test_transform_multiple
         train_dataset = Falling_Things_Dataset(root=train_dir,
                                           train=True,
                                           transform=train_transform)
-        test_dataset = Falling_Things_Dataset(root=train_dir,
+        test_dataset = Falling_Things_Dataset(root=val_dir,
                                           train=False,
                                           transform=test_transform)
 
