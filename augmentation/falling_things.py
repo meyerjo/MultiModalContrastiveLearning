@@ -71,7 +71,8 @@ class TransformsFallingThings128:
             MultipleInputsToTensor(),
             # TODO: check the normalization values
             MultipleInputsNormalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
+                                 std=[0.229, 0.224, 0.225]),
+            AddFirstDimension()
         ])
         self.test_transform_multiple= transforms.Compose([
             ResizeMultiple(146, interpolation=INTERP),
@@ -98,8 +99,8 @@ class TransformsFallingThings128:
             assert(all(types))
             inp = self.flip_lr_multiple(inp)
             inp = self.train_transform_multi_modality(inp)
-            # return inp[0], inp[1]
-            return inp[0][None, ...], inp[1][None, ...]
+            return inp[0], inp[1]
+            # return inp[0][None, ...], inp[1][None, ...]
         else:
             raise BaseException('Unknown number of modalities')
 
@@ -140,3 +141,9 @@ class MultipleInputsNormalize(transforms.Normalize):
         assert(isinstance(tensor, list))
 
         return [TF.normalize(t, self.mean, self.std, self.inplace) for t in tensor]
+
+class AddFirstDimension(object):
+
+    def __call__(self, input):
+        assert(isinstance(input, list))
+        return [inp[None, ...] for inp in input]
