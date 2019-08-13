@@ -6,6 +6,8 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 
+from augmentation.falling_things import TransformsFallingThings128
+from data_io.falling_things import Falling_Things_Dataset
 
 INTERP = 3
 
@@ -16,6 +18,7 @@ class Dataset(Enum):
     STL10 = 3
     IN128 = 4
     PLACES205 = 5
+    FALLINGTHINGS = 6
 
 
 def get_encoder_size(dataset):
@@ -24,6 +27,10 @@ def get_encoder_size(dataset):
     if dataset == Dataset.STL10:
         return 64
     if dataset in [Dataset.IN128, Dataset.PLACES205]:
+        return 128
+    if dataset == Dataset.FALLINGTHINGS:
+        #raise NotImplementedError('TBD')
+        print('randomly outputting a number here')
         return 128
     raise RuntimeError("Couldn't get encoder size, unknown dataset: {}".format(dataset))
 
@@ -255,6 +262,16 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False):
         test_transform = train_transform.test_transform
         train_dataset = datasets.ImageFolder(train_dir, train_transform)
         test_dataset = datasets.ImageFolder(val_dir, test_transform)
+    elif dataset == Dataset.FALLINGTHINGS:
+        num_classes = 21
+        train_transform = TransformsFallingThings128()
+        test_transform = train_transform.test_transform_multiple
+        train_dataset = Falling_Things_Dataset(root=train_dir,
+                                          train=True,
+                                          transform=train_transform)
+        test_dataset = Falling_Things_Dataset(root=val_dir,
+                                          train=False,
+                                          transform=test_transform)
 
     # build pytorch dataloaders for the datasets
     train_loader = \
@@ -285,6 +302,9 @@ def _get_directories(dataset, input_dir):
     elif dataset == Dataset.PLACES205:
         train_dir = os.path.join(input_dir, 'places205_256_train/')
         val_dir = os.path.join(input_dir, 'places205_256_val/')
+    elif dataset == Dataset.FALLINGTHINGS:
+        train_dir = os.path.join(input_dir, 'train')
+        val_dir = os.path.join(input_dir, 'val')
     else:
         raise 'Data directories for dataset ' + dataset + ' are not defined'
     return train_dir, val_dir

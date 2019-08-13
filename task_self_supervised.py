@@ -1,5 +1,6 @@
 import sys
 import time
+from datetime import datetime
 
 import torch
 import torch.optim as optim
@@ -13,6 +14,7 @@ from stats import AverageMeterSet, update_train_accuracies
 from datasets import Dataset
 from costs import loss_xent
 
+CURRENT_TIME = lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
            train_loader, test_loader, stat_tracker, log_dir, device):
@@ -89,9 +91,8 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
                 torch.cuda.empty_cache()
                 time_stop = time.time()
                 spu = (time_stop - time_start) / 100.
-                from datetime import datetime
-                print('[{0}] Epoch {1:d}, {2:d} updates -- {3:.4f} sec/update'.format(
-                          datetime.now().strftime('%Y-%m-%d %H:%M:%S'), epoch, epoch_updates, spu))
+                print('[{0}] Epoch {1:d}, {2:d} updates -- {3:.4f} sec/update'
+                      .format(CURRENT_TIME(), epoch, epoch_updates, spu))
                 time_start = time.time()
             if (total_updates % 500) == 0:
                 # record diagnostics
@@ -110,7 +111,7 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
         scheduler_inf.step(epoch)
         test_model(model, test_loader, device, epoch_stats, max_evals=500000)
         epoch_str = epoch_stats.pretty_string(ignore=model.tasks)
-        diag_str = '{0:d}: {1:s}'.format(epoch, epoch_str)
+        diag_str = '[{0}] {1:d}: {2:s}'.format(CURRENT_TIME(), epoch, epoch_str)
         print(diag_str)
         sys.stdout.flush()
         stat_tracker.record_stats(epoch_stats.averages(epoch, prefix='costs/'))

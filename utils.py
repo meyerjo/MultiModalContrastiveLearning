@@ -1,4 +1,5 @@
 import math
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.init as init
@@ -27,7 +28,12 @@ def test_model(model, test_loader, device, stats, max_evals=200000):
     for _, (images, labels) in enumerate(test_loader):
         if total > max_evals:
             break
-        images = images.to(device)
+        if isinstance(images, list):
+            images = [img.to(device) for img in images]
+            # TODO: see comment below (in def _warmup_batchnorm)
+            images = images[np.random.randint(0, len(images))]
+        else:
+            images = images.to(device)
         labels = labels.cpu()
         with torch.no_grad():
             res_dict = model(x1=images, x2=images, class_only=True)
@@ -55,7 +61,20 @@ def _warmup_batchnorm(model, data_loader, device, batches=100, train_loader=Fals
             break
         if train_loader:
             images = images[0]
-        images = images.to(device)
+        # if only one modality is present this modality is passed to the
+        # model as center resized / center cropped version of the image
+        # This tests the data representation. In the case of multiple
+        # modalities or 'privileged' information this needs to be
+        # further investigated. TODO: test various ways to do this selection
+        # As an initial test we will select a random modality each time
+        # this method is called. As the representation should generalize to
+        # both of them.
+        if isinstance(images, list):
+            images = [img.to(device) for img in images]
+            # TODO: see comment above
+            images = images[np.random.randint(0, len(images))]
+        else:
+            images = images.to(device)
         _ = model(x1=images, x2=images, class_only=True)
 
 

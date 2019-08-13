@@ -1,6 +1,7 @@
 .vscode/
 default_run/
 *.tfevents.*
+runs/
 
 *.swp
 # Byte-compiled / optimized / DLL files
