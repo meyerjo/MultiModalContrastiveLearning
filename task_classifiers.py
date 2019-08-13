@@ -54,8 +54,10 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
             if (total_updates % 100) == 0:
                 time_stop = time.time()
                 spu = (time_stop - time_start) / 100.
-                print('Epoch {0:d}, {1:d} updates -- {2:.4f} sec/update'
-                      .format(epoch, epoch_updates, spu))
+                from datetime import datetime
+                print('[{0}] Epoch {1:d}, {2:d} updates -- {3:.4f} sec/update'
+                      .format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 
+                              epoch, epoch_updates, spu))
                 time_start = time.time()
 
         # step learning rate scheduler

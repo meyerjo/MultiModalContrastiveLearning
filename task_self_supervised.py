@@ -89,8 +89,9 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
                 torch.cuda.empty_cache()
                 time_stop = time.time()
                 spu = (time_stop - time_start) / 100.
-                print('Epoch {0:d}, {1:d} updates -- {2:.4f} sec/update'
-                      .format(epoch, epoch_updates, spu))
+                from datetime import datetime
+                print('[{0}] Epoch {1:d}, {2:d} updates -- {3:.4f} sec/update'.format(
+                          datetime.now().strftime('%Y-%m-%d %H:%M:%S'), epoch, epoch_updates, spu))
                 time_start = time.time()
             if (total_updates % 500) == 0:
                 # record diagnostics
