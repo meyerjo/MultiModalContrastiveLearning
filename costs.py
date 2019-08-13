@@ -164,7 +164,7 @@ class LossMultiNCE(nn.Module):
         if masks is not None:
             # subsample from conv-ish r_cnv to get a single vector
             mask_idx = torch.randint(0, masks.size(0), (n_batch,))
-            r_cnv = torch.masked_select(r_cnv, masks[mask_idx])
+            r_cnv = torch.masked_select(r_cnv, masks[mask_idx].bool())
         # flatten features for use as globals in glb->lcl nce cost
         r_vec = r_cnv.reshape(n_batch, n_rkhs)
         return r_vec
