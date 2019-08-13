@@ -70,8 +70,16 @@ class TransformsFallingThings128:
         post_transform_multiple = transforms.Compose([
             MultipleInputsToTensor(),
             # TODO: check the normalization values
-            MultipleInputsNormalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225]),
+            MultipleInputsNormalize(
+                mean=[
+                    [0.405, 0.346, 0.293],
+                    [0.724, 0.324, 0.143]
+                ],
+                std=[
+                    [0.281, 0.274, 0.274],
+                    [0.332, 0.363, 0.281],
+                ]
+            ),
             AddFirstDimension()
         ])
         self.test_transform_multiple= transforms.Compose([
@@ -140,7 +148,7 @@ class MultipleInputsNormalize(transforms.Normalize):
         """
         assert(isinstance(tensor, list))
 
-        return [TF.normalize(t, self.mean, self.std, self.inplace) for t in tensor]
+        return [TF.normalize(t, self.mean[i], self.std[i], self.inplace) for i, t in enumerate(tensor)]
 
 class AddFirstDimension(object):
 
