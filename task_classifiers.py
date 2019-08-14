@@ -93,6 +93,11 @@ def train_classifiers(model, learning_rate, dataset, train_loader,
     elif dataset == Dataset.PLACES205:
         scheduler = MultiStepLR(optimizer, milestones=[7, 12], gamma=0.2)
         epochs = 15
+    elif dataset == Dataset.FALLINGTHINGS:
+        scheduler = MultiStepLR(optimizer, milestones=[15, 25], gamma=0.2)
+        epochs = 30
+    else:
+        raise NotImplementedError('Unknown dataset type: {}'.format(dataset))
     # retrain the model
     _train(model, optimizer, scheduler, epochs, train_loader,
            test_loader, stat_tracker, log_dir, device)
