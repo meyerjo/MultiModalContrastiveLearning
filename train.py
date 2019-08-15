@@ -48,6 +48,8 @@ parser.add_argument('--cpt_name', type=str, default='amdim_cpt.pth',
                     help='name to use for storing checkpoints during training')
 parser.add_argument('--run_name', type=str, default='default_run',
                     help='name to use for the tensorbaord summary for this run')
+
+parser.add_argument('--modality', type=str, default='dual', choices=['dual', 'rgb', 'depth'])
 # ...
 args = parser.parse_args()
 
@@ -78,7 +80,8 @@ def main():
         build_dataset(dataset=dataset,
                       batch_size=args.batch_size,
                       input_dir=args.input_dir,
-                      labeled_only=args.classifiers)
+                      labeled_only=args.classifiers,
+                      modality=args.modality)
 
     torch_device = torch.device('cuda')
     # create new model with random parameters

@@ -10,7 +10,10 @@ from torchvision import datasets, transforms
 import torchvision.transforms.functional as TF
 INTERP = 3
 
-class TransformsFallingThings128:
+class TransformsFallingThings128(object):
+    '''
+    TransformsFallingThings128 dataset, for use with 128x128 full image encoder.
+    '''
 
     class RandomResizedCropMultiple(transforms.RandomResizedCrop):
 
@@ -29,86 +32,97 @@ class TransformsFallingThings128:
         return inputs
 
 
-    '''
-    ImageNet dataset, for use with 128x128 full image encoder.
-    '''
-    def __init__(self):
+    def __init__(self, modality=None):
+        """
+
+        :param modality: Modality
+        """
         # image augmentation functions
-        self.flip_lr = transforms.RandomHorizontalFlip(p=0.5)
-        # rand_crop = \
-        #     transforms.RandomResizedCrop(128, scale=(0.3, 1.0), ratio=(0.7, 1.4),
-        #                                  interpolation=INTERP)
-        #
-        # col_jitter = transforms.RandomApply([
-        #     transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8)
-        # rnd_gray = transforms.RandomGrayscale(p=0.25)
-        # self.train_transform = transforms.Compose([
-        #     rand_crop,
-        #     col_jitter,
-        #     rnd_gray,
-        #     post_transform
-        # ])
+        if modality is None or modality == 'rgb' or modality == 'd':
+            self.flip_lr = transforms.RandomHorizontalFlip(p=0.5)
+            rand_crop = \
+                transforms.RandomResizedCrop(128, scale=(0.3, 1.0), ratio=(0.7, 1.4),
+                                             interpolation=INTERP)
 
-        post_transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
-        ])
-        self.test_transform = transforms.Compose([
-            transforms.Resize(146, interpolation=INTERP),
-            transforms.CenterCrop(128),
-            post_transform
-        ])
+            col_jitter = transforms.RandomApply([
+                transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8)
+            rnd_gray = transforms.RandomGrayscale(p=0.25)
 
 
-        # Handling multiple modalities
-        self.flip_lr_multiple = self.custom_flip
-        rand_crop_multiple = \
-            TransformsFallingThings128.RandomResizedCropMultiple(128, scale=(0.3, 1.0), ratio=(0.7, 1.4),
-                                         interpolation=INTERP)
+            post_transform_steps = [transforms.ToTensor()]
+            if modality == 'rgb':
+                post_transform_steps += [
+                    transforms.Normalize(
+                        mean=[0.405, 0.346, 0.293], std=[0.281, 0.274, 0.274]
+                    )]
+            elif modality == 'd' or modality == 'depth':
+                post_transform_steps += [
+                    transforms.Normalize(
+                        mean=[0.724, 0.324, 0.143], std=[0.332, 0.363, 0.281]
+                    )]
+            else:
+                raise BaseException('Unknown modality')
 
-        post_transform_multiple = transforms.Compose([
-            MultipleInputsToTensor(),
-            # TODO: check the normalization values
-            MultipleInputsNormalize(
-                mean=[
-                    [0.405, 0.346, 0.293],
-                    [0.724, 0.324, 0.143]
-                ],
-                std=[
-                    [0.281, 0.274, 0.274],
-                    [0.332, 0.363, 0.281],
-                ]
-            ),
-            AddFirstDimension()
-        ])
-        self.test_transform_multiple= transforms.Compose([
-            ResizeMultiple(146, interpolation=INTERP),
-            CenterCropMultiple(128),
-            post_transform_multiple
-        ])
-        self.train_transform_multi_modality = transforms.Compose([
-            rand_crop_multiple,
-            # col_jitter,
-            # rnd_gray,
-            post_transform_multiple
-        ])
+            post_transform = transforms.Compose(post_transform_steps)
+
+
+            self.train_transform = transforms.Compose([
+                rand_crop,
+                col_jitter,
+                rnd_gray,
+                post_transform
+            ])
+            self.test_transform = transforms.Compose([
+                transforms.Resize(146, interpolation=INTERP),
+                transforms.CenterCrop(128),
+                post_transform
+            ])
+        elif (modality == 'dual') or (modality == 'rgb_d'):
+            # Handling multiple modalities
+            self.flip_lr_multiple = self.custom_flip
+            rand_crop_multiple = \
+                TransformsFallingThings128.RandomResizedCropMultiple(
+                    128, scale=(0.3, 1.0), ratio=(0.7, 1.4), interpolation=INTERP)
+
+            post_transform_multiple = transforms.Compose([
+                MultipleInputsToTensor(),
+                # TODO: check the normalization values
+                MultipleInputsNormalize(
+                    mean=[
+                        [0.405, 0.346, 0.293],
+                        [0.724, 0.324, 0.143]
+                    ],
+                    std=[
+                        [0.281, 0.274, 0.274],
+                        [0.332, 0.363, 0.281],
+                    ]
+                ),
+                AddFirstDimension()
+            ])
+            self.test_transform = transforms.Compose([
+                ResizeMultiple(146, interpolation=INTERP),
+                CenterCropMultiple(128), post_transform_multiple
+            ])
+            self.train_transform = transforms.Compose([
+                rand_crop_multiple, post_transform_multiple
+            ])
+
+        else:
+            raise BaseException('Modality unknown')
+
 
     def __call__(self, inp):
         if len(inp) == 1:
-            # inp = self.flip_lr(inp)
-            # out1 = self.train_transform(inp)
-            # out2 = self.train_transform(inp)
-            # return out1, out2
-            raise NotImplementedError('Just be sure this is not called...')
+            inp = self.flip_lr(inp[0])
+            out1 = self.train_transform(inp)
+            out2 = self.train_transform(inp)
+            return out1, out2
         elif len(inp) == 2:
-            from PIL import Image
-            types = [isinstance(o, Image.Image) for o in inp]
-            assert(all(types))
+            from PIL.Image import Image
+            assert(all([isinstance(o, Image) for o in inp]))
             inp = self.flip_lr_multiple(inp)
-            inp = self.train_transform_multi_modality(inp)
+            inp = self.train_transform(inp)
             return inp[0], inp[1]
-            # return inp[0][None, ...], inp[1][None, ...]
         else:
             raise BaseException('Unknown number of modalities')
 
