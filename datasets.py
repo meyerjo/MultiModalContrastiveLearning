@@ -1,4 +1,5 @@
 import os
+import re
 from enum import Enum
 
 from PIL import Image
@@ -203,7 +204,7 @@ class TransformsImageNet128:
         return out1, out2
 
 
-def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False):
+def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modality=None):
 
     train_dir, val_dir = _get_directories(dataset, input_dir)
 
@@ -264,14 +265,24 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False):
         test_dataset = datasets.ImageFolder(val_dir, test_transform)
     elif dataset == Dataset.FALLINGTHINGS:
         num_classes = 21
-        train_transform = TransformsFallingThings128()
-        test_transform = train_transform.test_transform_multiple
-        train_dataset = Falling_Things_Dataset(root=train_dir,
-                                          train=True,
-                                          transform=train_transform)
-        test_dataset = Falling_Things_Dataset(root=val_dir,
-                                          train=False,
-                                          transform=test_transform)
+        train_transform = TransformsFallingThings128(modality=modality)
+        test_transform = train_transform.test_transform
+
+        if modality == 'rgb':
+            file_regex = re.compile('\.(left|right)\.jpg$')
+        elif modality == 'd' or modality == 'depth':
+            file_regex = re.compile('\.(left|right)\.colorized\.depth\.jpg$')
+        else:
+            file_regex = None
+
+        train_dataset = Falling_Things_Dataset(
+            root=train_dir, train=True, transform=train_transform,
+            file_filter_regex=file_regex
+        )
+        test_dataset = Falling_Things_Dataset(
+            root=val_dir, train=False, transform=test_transform,
+            file_filter_regex=file_regex
+        )
 
     # build pytorch dataloaders for the datasets
     train_loader = \

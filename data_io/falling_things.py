@@ -14,7 +14,7 @@ class Falling_Things_Dataset(VisionDataset):
 
     def __init__(self, root, train=True,
                  transform=None, target_transform=None,
-                 download=False):
+                 download=False, file_filter_regex=None):
 
         super(Falling_Things_Dataset, self).__init__(root)
         self.transform = transform
@@ -35,6 +35,8 @@ class Falling_Things_Dataset(VisionDataset):
                 (os.path.join(self.root, c, f), c, f) for f in os.listdir(os.path.join(self.root, c))
                 if os.path.isfile(os.path.join(self.root, c, f))
             ]
+        if file_filter_regex is not None:
+            files_list = [f for f in files_list if file_filter_regex.search(f) is not None]
 
         print('Grouping files by filestem')
         # Group them by filestem
@@ -115,7 +117,6 @@ class Falling_Things_Dataset(VisionDataset):
             pil_images.append(Image.fromarray(im))
 
         if self.transform is not None:
-            # TODO: how to prevent different augmentations for different modalities
             pil_images = self.transform(pil_images)
 
         if self.target_transform is not None:
