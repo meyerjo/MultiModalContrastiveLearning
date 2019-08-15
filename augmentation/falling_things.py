@@ -113,7 +113,7 @@ class TransformsFallingThings128(object):
 
     def __call__(self, inp):
         if len(inp) == 1:
-            inp = self.flip_lr(inp)
+            inp = self.flip_lr(inp[0])
             out1 = self.train_transform(inp)
             out2 = self.train_transform(inp)
             return out1, out2

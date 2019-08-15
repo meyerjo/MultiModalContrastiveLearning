@@ -36,7 +36,7 @@ class Falling_Things_Dataset(VisionDataset):
                 if os.path.isfile(os.path.join(self.root, c, f))
             ]
         if file_filter_regex is not None:
-            files_list = [f for f in files_list if file_filter_regex.search(f) is not None]
+            files_list = [f for f in files_list if file_filter_regex.search(f[0]) is not None]
 
         print('Grouping files by filestem')
         # Group them by filestem
@@ -123,7 +123,7 @@ class Falling_Things_Dataset(VisionDataset):
             target = self.target_transform(target)
 
         if len(image_per_modality) == 1:
-            return pil_images[0], target
+            return (pil_images[0], pil_images[1]), target
         elif len(image_per_modality) == 2:
             return (pil_images[0][0], pil_images[1][0]), target
         else:
