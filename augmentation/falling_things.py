@@ -66,8 +66,8 @@ class TransformsFallingThings128(object):
 
             self.train_transform = transforms.Compose([
                 rand_crop,
-                col_jitter,
-                rnd_gray,
+                # col_jitter,
+                # rnd_gray,
                 post_transform
             ])
             self.test_transform = transforms.Compose([
