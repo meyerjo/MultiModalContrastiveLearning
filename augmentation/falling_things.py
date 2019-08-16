@@ -1,13 +1,8 @@
-import os
 import random
-from enum import Enum
-
-from PIL import Image
-import numpy as np
-import torch
-from torchvision import datasets, transforms
 
 import torchvision.transforms.functional as TF
+from torchvision import transforms
+
 INTERP = 3
 
 class TransformsFallingThings128(object):
@@ -62,6 +57,9 @@ class TransformsFallingThings128(object):
                     )]
             else:
                 raise BaseException('Unknown modality')
+            # post_transform_steps += [
+            #     AddFirstDimension()
+            # ]
 
             post_transform = transforms.Compose(post_transform_steps)
 
@@ -112,8 +110,9 @@ class TransformsFallingThings128(object):
 
 
     def __call__(self, inp):
-        if len(inp) == 1:
-            inp = self.flip_lr(inp[0])
+        from PIL.Image import Image
+        if isinstance(inp, Image) or len(inp) == 1:
+            inp = self.flip_lr(inp)
             out1 = self.train_transform(inp)
             out2 = self.train_transform(inp)
             return out1, out2
@@ -167,5 +166,6 @@ class MultipleInputsNormalize(transforms.Normalize):
 class AddFirstDimension(object):
 
     def __call__(self, input):
-        assert(isinstance(input, list))
-        return [inp[None, ...] for inp in input]
+        if isinstance(input, list):
+            return [inp[None, ...] for inp in input]
+        return input[None, ...]

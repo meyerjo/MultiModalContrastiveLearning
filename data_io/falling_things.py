@@ -117,13 +117,18 @@ class Falling_Things_Dataset(VisionDataset):
             pil_images.append(Image.fromarray(im))
 
         if self.transform is not None:
-            pil_images = self.transform(pil_images)
+            if len(pil_images) == 1:
+                pil_images = self.transform(pil_images[0])
+            else:
+                pil_images = self.transform(pil_images)
 
         if self.target_transform is not None:
             target = self.target_transform(target)
 
         if len(image_per_modality) == 1:
-            return (pil_images[0], pil_images[1]), target
+            if isinstance(pil_images, tuple):
+                return (pil_images[0], pil_images[1]), target
+            return pil_images, target
         elif len(image_per_modality) == 2:
             return (pil_images[0][0], pil_images[1][0]), target
         else:
