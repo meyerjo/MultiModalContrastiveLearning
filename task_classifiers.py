@@ -19,7 +19,7 @@ CURRENT_TIME = lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
 def _train(model, optimizer, scheduler, epochs, train_loader,
-           test_loader, stat_tracker, log_dir, device):
+           test_loader, stat_tracker, log_dir, device, modality_to_test):
     '''
     Training loop to train classifiers on top of an encoder with fixed weights.
     -- e.g., use this for eval or running on new data
@@ -64,7 +64,7 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
         # step learning rate scheduler
         scheduler.step(epoch)
         # record diagnostics
-        test_model(model, test_loader, device, epoch_stats, max_evals=500000)
+        test_model(model, test_loader, device, epoch_stats, max_evals=500000, feat_selection=modality_to_test)
         epoch_str = epoch_stats.pretty_string(ignore=model.tasks)
         diag_str = '[{0}] {1:d}: {2:s}'.format(CURRENT_TIME(), epoch, epoch_str)
         print(diag_str)
@@ -73,7 +73,8 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
 
 
 def train_classifiers(model, learning_rate, dataset, train_loader,
-                      test_loader, stat_tracker, checkpoint, log_dir, device):
+                      test_loader, stat_tracker, checkpoint, log_dir, device,
+                      modality_to_test):
     # retrain the evaluation classifiers using the trained feature encoder
     for mod in model.class_modules:
         # reset params in the evaluation classifiers
@@ -100,4 +101,4 @@ def train_classifiers(model, learning_rate, dataset, train_loader,
         raise NotImplementedError('Unknown dataset type: {}'.format(dataset))
     # retrain the model
     _train(model, optimizer, scheduler, epochs, train_loader,
-           test_loader, stat_tracker, log_dir, device)
+           test_loader, stat_tracker, log_dir, device, modality_to_test)

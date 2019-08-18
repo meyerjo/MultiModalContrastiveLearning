@@ -50,6 +50,7 @@ parser.add_argument('--run_name', type=str, default='default_run',
                     help='name to use for the tensorbaord summary for this run')
 
 parser.add_argument('--modality', type=str, default='dual', choices=['dual', 'rgb', 'depth'])
+parser.add_argument('--modality_to_test', type=str, default='random', choices=['random', 'rgb', 'depth'])
 # ...
 args = parser.parse_args()
 
@@ -98,7 +99,8 @@ def main():
 
     # do the real stuff...
     task(model, args.learning_rate, dataset, train_loader,
-         test_loader, stat_tracker, checkpoint, args.output_dir, torch_device)
+         test_loader, stat_tracker, checkpoint, args.output_dir, torch_device, 
+         args.modality_to_test)
 
 
 if __name__ == "__main__":

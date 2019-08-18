@@ -7,12 +7,12 @@ import torch.nn.init as init
 from mixed_precision import maybe_half
 
 
-def test_model(model, test_loader, device, stats, max_evals=200000):
+def test_model(model, test_loader, device, stats, max_evals=200000, feat_selection='random'):
     '''
     Evaluate accuracy on test set
     '''
     # warm up batchnorm stats based on current model
-    _warmup_batchnorm(model, test_loader, device, batches=50, train_loader=False)
+    _warmup_batchnorm(model, test_loader, device, batches=50, train_loader=False, feat_selection=feat_selection)
 
     def get_correct_count(lgt_vals, lab_vals):
         # count how many predictions match the target labels
@@ -31,7 +31,16 @@ def test_model(model, test_loader, device, stats, max_evals=200000):
         if isinstance(images, list):
             images = [img.to(device) for img in images]
             # TODO: see comment below (in def _warmup_batchnorm)
-            images = images[np.random.randint(0, len(images))]
+            if feat_selection == 'random':
+                ind = np.random.randint(0, len(images))
+            elif feat_selection == 'rgb':
+                ind = 0
+            elif feat_selection == 'depth':
+                ind = 1
+            else:
+                raise BaseException('Unknown feature type')
+            images = images[ind]
+            #images = images[1]
         else:
             images = images.to(device)
         labels = labels.cpu()
@@ -50,11 +59,12 @@ def test_model(model, test_loader, device, stats, max_evals=200000):
     stats.update('test_acc_glb_lin', acc_glb_lin, n=1)
 
 
-def _warmup_batchnorm(model, data_loader, device, batches=100, train_loader=False):
+def _warmup_batchnorm(model, data_loader, device, batches=100, train_loader=False, feat_selection=None):
     '''
     Run some batches through all parts of the model to warmup the running
     stats for batchnorm layers.
     '''
+    assert(feat_selection is not None)
     model.train()
     for i, (images, _) in enumerate(data_loader):
         if i == batches:
@@ -71,8 +81,15 @@ def _warmup_batchnorm(model, data_loader, device, batches=100, train_loader=Fals
         # both of them.
         if isinstance(images, list):
             images = [img.to(device) for img in images]
-            # TODO: see comment above
-            images = images[np.random.randint(0, len(images))]
+            if feat_selection == 'random':
+                ind = np.random.randint(0, len(images))
+            elif feat_selection == 'rgb':
+                ind = 0
+            elif feat_selection == 'depth':
+                ind = 1
+            else:
+                raise BaseException('Unknown feature type')
+            images = images[ind]
         else:
             images = images.to(device)
         _ = model(x1=images, x2=images, class_only=True)

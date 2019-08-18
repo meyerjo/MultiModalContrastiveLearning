@@ -89,7 +89,7 @@ class Falling_Things_Dataset(VisionDataset):
 
             assert(len(entry['modality']) <= 2)
             self.data.append(entry)
-
+            #print(entry['modality'])
             self.targets.append(entries['class'])
             self.classes.add(entries['class'])
         self.classes = list(self.classes)
