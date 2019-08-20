@@ -41,7 +41,7 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
         epoch_updates = 0
         time_start = time.time()
 
-        for _, ((images1, images2), labels) in enumerate(train_loader):
+        for _, ((images1, images2), labels, modalities) in enumerate(train_loader):
             # get data and info about this minibatch
             labels = torch.cat([labels, labels]).to(device)
             images1 = images1.float().to(device)

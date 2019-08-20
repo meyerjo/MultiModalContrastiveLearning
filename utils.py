@@ -25,7 +25,7 @@ def test_model(model, test_loader, device, stats, max_evals=200000, feat_selecti
     correct_glb_mlp = 0.
     correct_glb_lin = 0.
     total = 0.
-    for _, (images, labels) in enumerate(test_loader):
+    for _, (images, labels, modalities) in enumerate(test_loader):
         if total > max_evals:
             break
         if isinstance(images, list):
@@ -41,6 +41,7 @@ def test_model(model, test_loader, device, stats, max_evals=200000, feat_selecti
                 raise BaseException('Unknown feature type')
             images = images[ind]
             #images = images[1]
+            #`print('Selecting modality: {}'.format(modalities[ind]))
         else:
             images = images.to(device)
         labels = labels.cpu()
@@ -66,7 +67,7 @@ def _warmup_batchnorm(model, data_loader, device, batches=100, train_loader=Fals
     '''
     assert(feat_selection is not None)
     model.train()
-    for i, (images, _) in enumerate(data_loader):
+    for i, (images, _, modalities) in enumerate(data_loader):
         if i == batches:
             break
         if train_loader:

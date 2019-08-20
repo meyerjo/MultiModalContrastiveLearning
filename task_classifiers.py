@@ -33,7 +33,7 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
     for epoch in range(epochs):
         epoch_updates = 0
         epoch_stats = AverageMeterSet()
-        for _, ((images1, images2), labels) in enumerate(train_loader):
+        for _, ((images1, images2), labels, modalities) in enumerate(train_loader):
             # get data and info about this minibatch
             images1 = images1.to(device)
             images2 = images2.to(device)
