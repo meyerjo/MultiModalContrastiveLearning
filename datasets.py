@@ -271,7 +271,7 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         if modality == 'rgb':
             file_regex = re.compile('\.(left|right)\.jpg$')
         elif modality == 'd' or modality == 'depth':
-            file_regex = re.compile('\.(left|right)\.colorized\.depth\.jpg$')
+            file_regex = re.compile('\.(left|right)\.depth\.colorized\.jpg$')
         else:
             file_regex = None
 

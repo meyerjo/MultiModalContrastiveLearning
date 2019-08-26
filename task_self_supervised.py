@@ -17,7 +17,7 @@ from costs import loss_xent
 CURRENT_TIME = lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
-           train_loader, test_loader, stat_tracker, log_dir, device):
+           train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test):
     '''
     Training loop for optimizing encoder
     '''
@@ -41,11 +41,11 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
         epoch_updates = 0
         time_start = time.time()
 
-        for _, ((images1, images2), labels) in enumerate(train_loader):
+        for _, ((images1, images2), labels, modalities) in enumerate(train_loader):
             # get data and info about this minibatch
             labels = torch.cat([labels, labels]).to(device)
-            images1 = images1.to(device)
-            images2 = images2.to(device)
+            images1 = images1.float().to(device)
+            images2 = images2.float().to(device)
             # run forward pass through model to get global and local features
             res_dict = model(x1=images1, x2=images2, class_only=False)
             lgt_glb_mlp, lgt_glb_lin = res_dict['class']
@@ -109,7 +109,7 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
 
         # update learning rate
         scheduler_inf.step(epoch)
-        test_model(model, test_loader, device, epoch_stats, max_evals=500000)
+        test_model(model, test_loader, device, epoch_stats, max_evals=500000, feat_selection=modality_to_test)
         epoch_str = epoch_stats.pretty_string(ignore=model.tasks)
         diag_str = '[{0}] {1:d}: {2:s}'.format(CURRENT_TIME(), epoch, epoch_str)
         print(diag_str)
@@ -120,7 +120,8 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
 
 
 def train_self_supervised(model, learning_rate, dataset, train_loader,
-                          test_loader, stat_tracker, checkpoint, log_dir, device):
+                          test_loader, stat_tracker, checkpoint, log_dir, device,
+                          modality_to_test):
     # configure optimizer
     mods_inf = [m for m in model.info_modules]
     mods_cls = [m for m in model.class_modules]
@@ -136,7 +137,7 @@ def train_self_supervised(model, learning_rate, dataset, train_loader,
         # best imagenet results use longer schedules...
         # -- e.g., milestones=[60, 90], epochs=100
         scheduler = MultiStepLR(optimizer, milestones=[30, 45], gamma=0.2)
-        epochs = 50
+        epochs = 100
     # train the model
     _train(model, optimizer, scheduler, checkpoint, epochs,
-           train_loader, test_loader, stat_tracker, log_dir, device)
+           train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test)

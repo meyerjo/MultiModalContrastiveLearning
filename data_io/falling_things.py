@@ -89,7 +89,7 @@ class Falling_Things_Dataset(VisionDataset):
 
             assert(len(entry['modality']) <= 2)
             self.data.append(entry)
-
+            #print(entry['modality'])
             self.targets.append(entries['class'])
             self.classes.add(entries['class'])
         self.classes = list(self.classes)
@@ -129,10 +129,10 @@ class Falling_Things_Dataset(VisionDataset):
 
         if len(image_per_modality) == 1:
             if isinstance(pil_images, tuple):
-                return (pil_images[0], pil_images[1]), target
-            return pil_images, target
+                return (pil_images[0], pil_images[1]), target, img_dict['modality']
+            return pil_images, target, img_dict['modality']
         elif len(image_per_modality) == 2:
-            return (pil_images[0][0], pil_images[1][0]), target
+            return (pil_images[0][0], pil_images[1][0]), target, img_dict['modality']
         else:
             raise NotImplementedError('More than 2 modalities not supported ')
 

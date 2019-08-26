@@ -33,7 +33,7 @@ class TransformsFallingThings128(object):
         :param modality: Modality
         """
         # image augmentation functions
-        if modality is None or modality == 'rgb' or modality == 'd':
+        if modality is None or modality == 'rgb' or modality == 'd' or modality == 'depth':
             self.flip_lr = transforms.RandomHorizontalFlip(p=0.5)
             rand_crop = \
                 transforms.RandomResizedCrop(128, scale=(0.3, 1.0), ratio=(0.7, 1.4),
