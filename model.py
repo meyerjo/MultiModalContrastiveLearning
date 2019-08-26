@@ -224,7 +224,7 @@ class Model(nn.Module):
         self.class_modules = [self.evaluator]
         return self.evaluator
 
-    def forward(self, x1, x2, class_only=False):
+    def forward(self, x1, x2, class_only=False, modality=None):
         '''
         Input:
           x1 : images from which to extract features -- x1 ~ A(x)
@@ -237,7 +237,18 @@ class Model(nn.Module):
         res_dict = {}
         if class_only:
             # shortcut to encode one image and evaluate classifier
-            rkhs_1, _, _ = self.encode(x1, no_grad=True)
+            if modality is None:
+                rkhs_1, _, _ = self.encode(x1, no_grad=True)
+            elif modality == 'rgb':
+                rkhs_1, _, _ = self.encode(x1, no_grad=True)
+            elif modality == 'd' or modality == 'depth':
+                rkhs_1, _, _ = self.encode(x2, no_grad=True)
+            elif modality == 'random':
+                x = x1 if np.random.rand(1) >= .5 else x2
+                rkhs_1, _, _ = self.encode(x, no_grad=True)
+            else:
+                raise BaseException('Unknown modality {}'.format(modality))
+
             lgt_glb_mlp, lgt_glb_lin = self.evaluator(rkhs_1)
             res_dict['class'] = [lgt_glb_mlp, lgt_glb_lin]
             res_dict['rkhs_glb'] = flatten(rkhs_1)

@@ -39,7 +39,10 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
             images2 = images2.to(device)
             labels = labels.to(device)
             # run forward pass through model and collect activations
-            res_dict = model(x1=images1, x2=images2, class_only=True)
+            res_dict = model(
+                x1=images1, x2=images2,
+                class_only=True, modality=modality_to_test
+            )
             lgt_glb_mlp, lgt_glb_lin = res_dict['class']
             # compute total loss for optimization
             loss = (loss_xent(lgt_glb_mlp, labels) +
