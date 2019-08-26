@@ -59,6 +59,25 @@
   * train_acc_glb_lin: 0.892
   * test_acc_glb_mlp: 0.774
   * test_acc_glb_lin: 0.767
+* Second run with Top5 results - Epoch 29 - RGB-D in representation Learning and jet-Depth in Learning of linear classifier
+  * loss: 0.691, 
+  * train_acc_glb_mlp: 0.887, 
+  * train_acc_glb_lin: 0.874, 
+  * test_acc_glb_mlp: 0.716, 
+  * test_acc_glb_lin: 0.705, 
+  * test_acc_glb_mlp_top_5: 0.952, 
+  * test_acc_glb_lin_top_5: 0.946
+* Second run with Top5 results - Epoch 29 - RGB-D in representation Learning and random selection of RGB or jet-Depth in Learning of linear classifier
+  * loss: 0.649
+  * train_acc_glb_mlp: 0.900
+  * train_acc_glb_lin: 0.888
+  * test_acc_glb_mlp: 0.780
+  * test_acc_glb_lin: 0.774
+  * test_acc_glb_mlp_top_5: 0.961
+  * test_acc_glb_lin_top_5: 0.957
+
+
+
 
 
 
