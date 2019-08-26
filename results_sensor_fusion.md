@@ -75,6 +75,14 @@
   * test_acc_glb_lin: 0.774
   * test_acc_glb_mlp_top_5: 0.961
   * test_acc_glb_lin_top_5: 0.957
+* Epoch 29 - RGB-D in representation learning and using RGB information while learning the linear classifier
+  * loss: 0.474, 
+  * train_acc_glb_mlp: 0.934, 
+  * train_acc_glb_lin: 0.921, 
+  * test_acc_glb_mlp: 0.919
+  * test_acc_glb_lin: 0.913
+  * test_acc_glb_mlp_top_5: 0.985
+  * test_acc_glb_lin_top_5: 0.985
 
 
 
