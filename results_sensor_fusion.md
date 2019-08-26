@@ -44,8 +44,25 @@
     * train_acc_glb_lin: 0.922, 
     * test_acc_glb_mlp: 0.663, 
     * test_acc_glb_lin: 0.673
+    
+    
+### Results on 26th Aug 2019
+* Epoch 29 - RGB-D in representation Learning and jet-Depth in Learning of linear classifier
+  * loss: 0.691
+  * train_acc_glb_mlp: 0.888 
+  * train_acc_glb_lin: 0.874 
+  * test_acc_glb_mlp: 0.716 
+  * test_acc_glb_lin: 0.706
+* Epoch 29 - RGB-D in representation Learning and random selection of RGB or jet-Depth in Learning of linear classifier
+  * loss: 0.636 
+  * train_acc_glb_mlp: 0.904 
+  * train_acc_glb_lin: 0.892
+  * test_acc_glb_mlp: 0.774
+  * test_acc_glb_lin: 0.767
+
+
 
 
 ## Timeline
 * [Johannes, 26. Aug 2019]: Check the performance drop from RGB to only Depth. Are only images from one modality used for the training of the linear classifier?
-
+* [Johannes, 26. Aug 2019]: Train AMDIM model end-to-end with supervision
