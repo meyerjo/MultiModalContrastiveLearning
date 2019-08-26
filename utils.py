@@ -14,16 +14,25 @@ def test_model(model, test_loader, device, stats, max_evals=200000, feat_selecti
     # warm up batchnorm stats based on current model
     _warmup_batchnorm(model, test_loader, device, batches=50, train_loader=False, feat_selection=feat_selection)
 
-    def get_correct_count(lgt_vals, lab_vals):
+    def get_correct_count(lgt_vals, lab_vals, top_k=1):
         # count how many predictions match the target labels
-        max_lgt = torch.max(lgt_vals.cpu().data, 1)[1]
-        num_correct = (max_lgt == lab_vals).sum().item()
+        max_lgt = torch.topk(lgt_vals.cpu().data, k=top_k)[1]
+        if top_k == 1:
+            max_lgt = max_lgt.flatten()
+            num_correct = (max_lgt == lab_vals).sum().item()
+        else:
+            labels_reshaped = lab_vals.expand(
+                max_lgt.transpose(1, 0).shape).transpose(1, 0)
+            topk_comparison = max_lgt == labels_reshaped
+            num_correct = torch.any(topk_comparison, axis=1).sum().item()
         return num_correct
 
     # evaluate model on test_loader
     model.eval()
     correct_glb_mlp = 0.
     correct_glb_lin = 0.
+    correct_glb_mlp_top_5 = 0.
+    correct_glb_lin_top_5 = 0.
     total = 0.
     for _, (images, labels, modalities) in enumerate(test_loader):
         if total > max_evals:
@@ -51,13 +60,19 @@ def test_model(model, test_loader, device, stats, max_evals=200000, feat_selecti
         # check classification accuracy
         correct_glb_mlp += get_correct_count(lgt_glb_mlp, labels)
         correct_glb_lin += get_correct_count(lgt_glb_lin, labels)
+        correct_glb_mlp_top_5 += get_correct_count(lgt_glb_mlp, labels, top_k=5)
+        correct_glb_lin_top_5 += get_correct_count(lgt_glb_lin, labels, top_k=5)
         total += labels.size(0)
     acc_glb_mlp = correct_glb_mlp / total
     acc_glb_lin = correct_glb_lin / total
+    acc_glb_mlp_top_5 = correct_glb_mlp_top_5 / total
+    acc_glb_lin_top_5 = correct_glb_lin_top_5 / total
     model.train()
     # record stats in the provided stat tracker
     stats.update('test_acc_glb_mlp', acc_glb_mlp, n=1)
     stats.update('test_acc_glb_lin', acc_glb_lin, n=1)
+    stats.update('test_acc_glb_mlp_top_5', acc_glb_mlp_top_5, n=1)
+    stats.update('test_acc_glb_lin_top_5', acc_glb_lin_top_5, n=1)
 
 
 def _warmup_batchnorm(model, data_loader, device, batches=100, train_loader=False, feat_selection=None):
