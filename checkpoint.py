@@ -3,7 +3,8 @@ import torch
 
 
 class Checkpoint():
-    def __init__(self, model, cpt_load_path, output_dir):
+    def __init__(self, model, cpt_load_path, output_dir, cpt_name=None):
+        assert(cpt_name is not None)
         # set output dir will this checkpoint will save itself
         self.output_dir = output_dir
         # set initial state
@@ -12,6 +13,7 @@ class Checkpoint():
         self.info_steps = 0
         # load checkpoint from disk (if available)
         self._load_cpt(cpt_load_path)
+        self.cpt_name = cpt_name
 
     def _get_state(self):
         return {
@@ -37,7 +39,7 @@ class Checkpoint():
                   "************************************")
 
     def _save_cpt(self):
-        f_name = 'amdim_cpt.pth'
+        f_name = self.cpt_name
         cpt_path = os.path.join(self.output_dir, f_name)
         # write updated checkpoint to the desired path
         torch.save(self._get_state(), cpt_path)

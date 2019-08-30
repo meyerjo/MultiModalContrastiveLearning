@@ -20,7 +20,7 @@ CURRENT_TIME = lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 def _train(model, optimizer, scheduler, epochs, train_loader,
            test_loader, stat_tracker, log_dir, device, modality_to_test,
-           baseline_training=False):
+           baseline_training=False, checkpoint=None):
     '''
     Training loop to train classifiers on top of an encoder with fixed weights.
     -- e.g., use this for eval or running on new data
@@ -75,6 +75,8 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
         print(diag_str)
         sys.stdout.flush()
         stat_tracker.record_stats(epoch_stats.averages(epoch, prefix='eval/'))
+        if baseline_training:
+            checkpoint.update(epoch + 1, total_updates)
 
 
 def train_classifiers(model, learning_rate, dataset, train_loader,
@@ -108,5 +110,9 @@ def train_classifiers(model, learning_rate, dataset, train_loader,
     else:
         raise NotImplementedError('Unknown dataset type: {}'.format(dataset))
     # retrain the model
-    _train(model, optimizer, scheduler, epochs, train_loader,
-           test_loader, stat_tracker, log_dir, device, modality_to_test, baseline_training)
+    _train(
+        model, optimizer, scheduler, epochs, train_loader,
+        test_loader, stat_tracker, log_dir, device,
+        modality_to_test, baseline_training,
+        checkpoint=checkpoint
+    )

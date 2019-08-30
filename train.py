@@ -69,6 +69,8 @@ def main():
 
     if args.baseline and not args.classifiers:
         raise BaseException('If you want to train the baseline please also activate --classifiers')
+    if args.baseline and args.classifiers:
+        args.cpt_name = 'amdim_baseline_cpt.pth'
 
     # set the RNG seeds (probably more hidden elsewhere...)
     torch.manual_seed(args.seed)
@@ -97,7 +99,9 @@ def main():
                   use_bn=(args.use_bn == 1))
     model.init_weights(init_scale=1.0)
     # restore model parameters from a checkpoint if requested
-    checkpoint = Checkpoint(model, args.cpt_load_path, args.output_dir)
+    checkpoint = Checkpoint(
+        model, args.cpt_load_path, args.output_dir, cpt_name=args.cpt_name
+    )
     model = model.to(torch_device)
 
     # select which type of training to do
