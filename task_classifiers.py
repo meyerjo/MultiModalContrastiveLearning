@@ -19,7 +19,8 @@ CURRENT_TIME = lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
 def _train(model, optimizer, scheduler, epochs, train_loader,
-           test_loader, stat_tracker, log_dir, device, modality_to_test):
+           test_loader, stat_tracker, log_dir, device, modality_to_test,
+           baseline_training=False):
     '''
     Training loop to train classifiers on top of an encoder with fixed weights.
     -- e.g., use this for eval or running on new data
@@ -41,7 +42,8 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
             # run forward pass through model and collect activations
             res_dict = model(
                 x1=images1, x2=images2,
-                class_only=True, modality=modality_to_test
+                class_only=True, modality=modality_to_test,
+                training_all=baseline_training
             )
             lgt_glb_mlp, lgt_glb_lin = res_dict['class']
             # compute total loss for optimization
@@ -77,7 +79,7 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
 
 def train_classifiers(model, learning_rate, dataset, train_loader,
                       test_loader, stat_tracker, checkpoint, log_dir, device,
-                      modality_to_test):
+                      modality_to_test, baseline_training=False):
     # retrain the evaluation classifiers using the trained feature encoder
     for mod in model.class_modules:
         # reset params in the evaluation classifiers
@@ -97,11 +99,14 @@ def train_classifiers(model, learning_rate, dataset, train_loader,
     elif dataset == Dataset.PLACES205:
         scheduler = MultiStepLR(optimizer, milestones=[7, 12], gamma=0.2)
         epochs = 15
-    elif dataset == Dataset.FALLINGTHINGS:
+    elif dataset == Dataset.FALLINGTHINGS and not baseline_training:
         scheduler = MultiStepLR(optimizer, milestones=[15, 25], gamma=0.2)
         epochs = 30
+    elif dataset == Dataset.FALLINGTHINGS and baseline_training:
+        scheduler = MultiStepLR(optimizer, milestones=[60, 90, 120], gamma=0.2)
+        epochs = 150
     else:
         raise NotImplementedError('Unknown dataset type: {}'.format(dataset))
     # retrain the model
     _train(model, optimizer, scheduler, epochs, train_loader,
-           test_loader, stat_tracker, log_dir, device, modality_to_test)
+           test_loader, stat_tracker, log_dir, device, modality_to_test, baseline_training)

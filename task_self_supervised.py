@@ -17,10 +17,14 @@ from costs import loss_xent
 CURRENT_TIME = lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
-           train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test):
+           train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test,
+           baseline_training=False):
     '''
     Training loop for optimizing encoder
     '''
+    # make sure that we are not in baseline training mode
+    assert(not baseline_training)
+
     # If mixed precision is on, will add the necessary hooks into the model
     # and optimizer for half() conversions
     model, optim_inf = mixed_precision.initialize(model, optim_inf)
@@ -121,7 +125,7 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
 
 def train_self_supervised(model, learning_rate, dataset, train_loader,
                           test_loader, stat_tracker, checkpoint, log_dir, device,
-                          modality_to_test):
+                          modality_to_test, baseline_training=False):
     # configure optimizer
     mods_inf = [m for m in model.info_modules]
     mods_cls = [m for m in model.class_modules]
@@ -140,4 +144,5 @@ def train_self_supervised(model, learning_rate, dataset, train_loader,
         epochs = 100
     # train the model
     _train(model, optimizer, scheduler, checkpoint, epochs,
-           train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test)
+           train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test,
+           baseline_training)

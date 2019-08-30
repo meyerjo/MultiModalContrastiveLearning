@@ -51,6 +51,9 @@ parser.add_argument('--run_name', type=str, default='default_run',
 
 parser.add_argument('--modality', type=str, default='dual', choices=['dual', 'rgb', 'depth'])
 parser.add_argument('--modality_to_test', type=str, default='random', choices=['random', 'rgb', 'depth'])
+parser.add_argument('--baseline', action='store_true', default=False,
+                    help='Indicates whether the whole model should be trained.'
+                         'Needs to be combined with classifiers=True')
 # ...
 args = parser.parse_args()
 
@@ -63,6 +66,9 @@ def main():
     # enable mixed-precision computation if desired
     if args.amp:
         mixed_precision.enable_mixed_precision()
+
+    if args.baseline and not args.classifiers:
+        raise BaseException('If you want to train the baseline please also activate --classifiers')
 
     # set the RNG seeds (probably more hidden elsewhere...)
     torch.manual_seed(args.seed)
@@ -99,8 +105,12 @@ def main():
 
     # do the real stuff...
     task(model, args.learning_rate, dataset, train_loader,
-         test_loader, stat_tracker, checkpoint, args.output_dir, torch_device, 
-         args.modality_to_test)
+         test_loader, stat_tracker, checkpoint,
+         log_dir=args.output_dir,
+         device=torch_device,
+         modality_to_test=args.modality_to_test,
+         baseline_training=args.baseline
+    )
 
 
 if __name__ == "__main__":
