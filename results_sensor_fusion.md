@@ -56,51 +56,69 @@
   * test_acc_glb_mlp: 0.716 
   * test_acc_glb_lin: 0.706
 * Epoch 29 - RGB-D in representation Learning and random selection of RGB or jet-Depth in Learning of linear classifier
-  * loss: 0.636 
-  * train_acc_glb_mlp: 0.904 
-  * train_acc_glb_lin: 0.892
-  * test_acc_glb_mlp: 0.774
-  * test_acc_glb_lin: 0.767
-* Second run with Top5 results - Epoch 29 - RGB-D in representation Learning and jet-Depth in Learning of linear classifier
-  * loss: 0.691, 
-  * train_acc_glb_mlp: 0.887, 
-  * train_acc_glb_lin: 0.874, 
-  * test_acc_glb_mlp: 0.716, 
-  * test_acc_glb_lin: 0.705, 
-  * test_acc_glb_mlp_top_5: 0.952, 
-  * test_acc_glb_lin_top_5: 0.946
-* Second run with Top5 results - Epoch 29 - RGB-D in representation Learning and random selection of RGB or jet-Depth in Learning of linear classifier
+  * loss: 0.636
+  * train_acc 
+    * train_acc_glb_mlp: 0.904 
+    * train_acc_glb_lin: 0.892
+  * test_acc
+    * test_acc_glb_mlp: 0.774
+    * test_acc_glb_lin: 0.767
+  
+ #### Results on 26th Aug 2019 with top 5 (2)
+* Epoch 29 - RGB-D in representation Learning and random selection of RGB or jet-Depth in Learning of linear classifier
+  * Self-supervision: RGB/ jet-Depth
+  * Linear classifier: random selection of RGB / jet-Depth
   * loss: 0.649
-  * train_acc_glb_mlp: 0.900
-  * train_acc_glb_lin: 0.888
-  * test_acc_glb_mlp: 0.780
-  * test_acc_glb_lin: 0.774
-  * test_acc_glb_mlp_top_5: 0.961
-  * test_acc_glb_lin_top_5: 0.957
+  * train_acc
+    * train_acc_glb_mlp: 0.900
+    * train_acc_glb_lin: 0.888
+  * test_acc 
+    * test_acc_glb_mlp: 0.780
+    * test_acc_glb_mlp_top_5: 0.961
+    * test_acc_glb_lin: 0.774
+    * test_acc_glb_lin_top_5: 0.957
 * Epoch 29 - RGB-D in representation learning and using RGB information while learning the linear classifier
+  * Self-supervision: RGB/ jet-Depth
+  * Linear classifier: RGB
   * loss: 0.474, 
-  * train_acc_glb_mlp: 0.934, 
-  * train_acc_glb_lin: 0.921, 
-  * test_acc_glb_mlp: 0.919
-  * test_acc_glb_lin: 0.913
-  * test_acc_glb_mlp_top_5: 0.985
-  * test_acc_glb_lin_top_5: 0.985
+  * train_acc
+    * train_acc_glb_mlp: 0.934, 
+    * train_acc_glb_lin: 0.921,
+  * test_acc 
+    * test_acc_glb_mlp: 0.919
+    * test_acc_glb_mlp_top_5: 0.985
+    * test_acc_glb_lin: 0.913
+    * test_acc_glb_lin_top_5: 0.985
+* Epoch 29 - RGB-D in representation Learning and jet-Depth in Learning of linear classifier
+  * Self-supervision: RGB/ jet-Depth
+  * Linear classifier: jet-Depth
+  * loss: 0.691, 
+  * train_acc
+    * train_acc_glb_mlp: 0.887, 
+    * train_acc_glb_lin: 0.874, 
+  * test_acc 
+    * test_acc_glb_mlp: 0.716, 
+    * test_acc_glb_mlp_top_5: 0.952, 
+    * test_acc_glb_lin: 0.705, 
+    * test_acc_glb_lin_top_5: 0.946
 
 
 ### RGB / 3x-Depth Padded
 
-#### Self-supervised feature extraction
+#### Self-supervised feature extraction (no training of classifier)
  * epoch 99
  * loss_inf: 6.857
  * loss_cls: 0.761 
  * loss_g2l: 6.088 
  * lgt_reg: 0.769
- * train_acc_glb_mlp: 0.890 
- * train_acc_glb_lin: 0.869 
- * test_acc_glb_mlp: 0.743
- * test_acc_glb_lin: 0.726
- * test_acc_glb_mlp_top_5: 0.941
- * test_acc_glb_lin_top_5: 0.933
+ * train_acc
+   * train_acc_glb_mlp: 0.890 
+   * train_acc_glb_lin: 0.869 
+ * test_acc_
+   * test_acc_glb_mlp: 0.743
+   * test_acc_glb_mlp_top_5: 0.941
+   * test_acc_glb_lin: 0.726
+   * test_acc_glb_lin_top_5: 0.933
 
 #### Random selection
 
