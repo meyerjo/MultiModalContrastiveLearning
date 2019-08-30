@@ -33,7 +33,7 @@ class AverageMeterSet:
                 if ign in name:
                     keep = False
             if keep:
-                s.append('{0:s}: {1:.3f}'.format(name, avg))
+                s.append('{0:s}: {1:.3f}\n'.format(name, avg))
         s = ', '.join(s)
         return s
 
