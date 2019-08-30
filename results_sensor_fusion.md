@@ -20,7 +20,8 @@
     * test_acc_glb_lin: 0.647
 
 ## Sensor Fusion
-### RGB/Depth Self-Supervised embedding training - Random selection of RGB / (jet-)Depth
+### RGB / (jet-)Depth
+#### RGB/Depth Self-Supervised embedding training - Random selection of RGB / (jet-)Depth
 * Results AMDIM - Both modalities - No color augmentation
   * Epoch 29, 43 updates -- 0.8864 sec/update
     * loss: 0.473, 
@@ -29,15 +30,16 @@
     * test_acc_glb_mlp: 0.810, 
     * test_acc_glb_lin: 0.807
 
-### Both modalities for self supervised - only RGB modality in testing
+#### Both modalities for self supervised - only RGB modality in testing
   * Epoch 29, 43 updates -- 0.9963 sec/update
     * loss: 0.474, 
     * train_acc_glb_mlp: 0.934, 
     * train_acc_glb_lin: 0.921, 
     * test_acc_glb_mlp: 0.920, 
     * test_acc_glb_lin: 0.916
+    
 
-### Both modalities for self supervised - only Depth modality in testing
+#### Both modalities for self supervised - only Depth modality in testing
   * Epoch 29 
     * loss: 0.475, 
     * train_acc_glb_mlp: 0.935, 
@@ -46,7 +48,7 @@
     * test_acc_glb_lin: 0.673
     
     
-### Results on 26th Aug 2019 (1)
+#### Results on 26th Aug 2019 (1)
 * Epoch 29 - RGB-D in representation Learning and jet-Depth in Learning of linear classifier
   * loss: 0.691
   * train_acc_glb_mlp: 0.888 
@@ -85,12 +87,32 @@
   * test_acc_glb_lin_top_5: 0.985
 
 
+### RGB / 3x-Depth Padded
 
+#### Self-supervised feature extraction
+ * epoch 99
+ * loss_inf: 6.857
+ * loss_cls: 0.761 
+ * loss_g2l: 6.088 
+ * lgt_reg: 0.769
+ * train_acc_glb_mlp: 0.890 
+ * train_acc_glb_lin: 0.869 
+ * test_acc_glb_mlp: 0.743
+ * test_acc_glb_lin: 0.726
+ * test_acc_glb_mlp_top_5: 0.941
+ * test_acc_glb_lin_top_5: 0.933
+
+#### Random selection
+
+#### RGB 
+
+#### 3x Depth
 
 
 
 
 ## Timeline
 * [Johannes, 26. Aug 2019]: Check the performance drop from RGB to only Depth. Are only images from one modality used for the training of the linear classifier?
-  * see Results on 26th Aug 2019 (1)
+  * [x] see Results on 26th Aug 2019 (1)
 * [Johannes, 26. Aug 2019]: Train AMDIM model end-to-end with supervision
+* [Johannes, 27. Aug 2019]: Adopt the pre-processing for amdim training
