@@ -106,6 +106,7 @@
 ### RGB / 3x-Depth Padded
 
 #### Self-supervised feature extraction (no training of classifier)
+ * Self-supervision: RGB/ jet-Depth
  * epoch 99
  * loss_inf: 6.857
  * loss_cls: 0.761 
@@ -121,10 +122,26 @@
    * test_acc_glb_lin_top_5: 0.933
 
 #### Random selection
+ * Self-supervision: RGB/ 3xDepth
+ * Linear classifier: random selection of RGB / 3xDepth
+ * epoch 29
+ * loss: 0.697
+ * train_acc
+   * train_acc_glb_mlp: 0.895
+   * train_acc_glb_lin: 0.881
+ * test_acc
+   * test_acc_glb_mlp: 0.794
+   * test_acc_glb_mlp_top_5: 0.960 
+   * test_acc_glb_lin: 0.786
+   * test_acc_glb_lin_top_5: 0.956
 
 #### RGB 
+ * Self-supervision: RGB/ jet-Depth
+ * Linear classifier: RGB
 
 #### 3x Depth
+ * Self-supervision: RGB/ jet-Depth
+ * Linear classifier: 3xDepth
 
 
 
