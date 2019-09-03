@@ -1,3 +1,4 @@
+import itertools
 import os
 import pickle
 import re
@@ -43,7 +44,7 @@ class Falling_Things_Dataset(VisionDataset):
         # TODO: test this with multiple modalities
         files_dict = dict()
         for (file_path, cl, file_name) in files_list:
-            m = re.match('^([^\.]+)\.(.*)\.(jpg)$', file_name)
+            m = re.match('^([^\.]+)\.(.*)\.(jpg|png)$', file_name)
             if m is None:
                 continue
             filestem, modality, extension = m.groups()
@@ -63,7 +64,10 @@ class Falling_Things_Dataset(VisionDataset):
         # make sure we have the same number of modality-entries for each element
         assert(len(set([len(item['modalities']) for k, item in files_dict.items()])) == 1)
 
+        modality_list = [item['modalities'] for k, item in files_dict.items()]
+        modality_list_flat = list(itertools.chain(*modality_list))
 
+        print('Found the following modalities: {}'.format(set(modality_list_flat)))
         print('Loading the data...')
         self.data = []
         self.targets = []

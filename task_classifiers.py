@@ -49,6 +49,8 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
             # compute total loss for optimization
             loss = (loss_xent(lgt_glb_mlp, labels) +
                     loss_xent(lgt_glb_lin, labels))
+            if baseline_training:
+                loss = loss_xent(lgt_glb_mlp, labels)
             # do optimizer step for encoder
             optimizer.zero_grad()
             mixed_precision.backward(loss, optimizer)  # special mixed precision stuff
