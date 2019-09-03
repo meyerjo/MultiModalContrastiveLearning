@@ -1,7 +1,7 @@
 # AMDIM
 ## Baseline
 ### Single Modality
-#### RGB
+#### RGB (not padded)
 * Results AMDIM - RGB - Crops - No color augmentation
   * Epoch 29, 43 updates -- 0.5194 sec/update
       * loss: 0.372, 
@@ -9,6 +9,8 @@
     * train_acc_glb_lin: 0.936, 
     * test_acc_glb_mlp: 0.914, 
     * test_acc_glb_lin: 0.903
+    
+###
 
 #### (jet-)Depth
 * Results AMDIM - Depth - Crops - No color augmentation
@@ -136,7 +138,7 @@
    * test_acc_glb_lin_top_5: 0.956
 
 #### RGB 
- * Self-supervision: RGB/ jet-Depth
+ * Self-supervision: RGB/ 3xDepth
  * Linear classifier: RGB
  * epoch 29
  * loss: 0.503,
@@ -151,7 +153,7 @@
 
 
 #### 3xDepth
- * Self-supervision: RGB/ jet-Depth
+ * Self-supervision: RGB / 3xDepth
  * Linear classifier: 3xDepth
  * epoch 29
  * loss: 0.771
