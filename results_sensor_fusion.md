@@ -165,6 +165,50 @@
    * test_acc_glb_mlp_top_5: 0.934
    * test_acc_glb_lin: 0.632
    * test_acc_glb_lin_top_5: 0.927
+   
+   
+   
+### Verification results RGB - D
+#### Self-Supervision training 
+* 99
+* loss_inf: 5.632
+* loss_cls: 0.708
+* loss_g2l: 4.823
+* lgt_reg: 0.809
+* train_acc
+  * train_acc_glb_mlp: 0.897
+  * train_acc_glb_lin: 0.878
+* test_acc
+  * test_acc_glb_mlp: 0.878
+  * test_acc_glb_lin: 0.866
+  * test_acc_glb_mlp_top_5: 0.988
+  * test_acc_glb_lin_top_5: 0.985
+
+
+#### RGB
+
+* epoch 29
+* loss: 0.507
+* train_acc
+  * train_acc_glb_mlp: 0.931
+  * train_acc_glb_lin: 0.918
+* test_acc
+  * test_acc_glb_mlp: 0.922
+  * test_acc_glb_lin: 0.918
+  * test_acc_glb_mlp_top_5: 0.989
+  * test_acc_glb_lin_top_5: 0.989
+
+#### 3xDepth
+* epoch 29
+* loss: 0.712
+* train_acc
+    * train_acc_glb_mlp: 0.889
+    * train_acc_glb_lin: 0.874
+* test_acc
+    * test_acc_glb_mlp: 0.829
+    * test_acc_glb_lin: 0.824
+    * test_acc_glb_mlp_top_5: 0.984
+    * test_acc_glb_lin_top_5: 0.981
 
 
 ## Timeline
@@ -173,3 +217,4 @@
 * [Johannes, 26. Aug 2019]: Train AMDIM model end-to-end with supervision
 * [Johannes, 27. Aug 2019]: Adopt the pre-processing for amdim training
   * [x] see "RGB / 3x-Depth Padded"
+* Verify the results above
