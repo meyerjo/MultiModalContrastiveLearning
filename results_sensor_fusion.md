@@ -10,7 +10,6 @@
     * test_acc_glb_mlp: 0.914, 
     * test_acc_glb_lin: 0.903
     
-###
 
 #### (jet-)Depth
 * Results AMDIM - Depth - Crops - No color augmentation
@@ -168,7 +167,7 @@
    
    
    
-### Verification results RGB - D
+### RGB / 3x-Depth Padded - Verification 
 #### Self-Supervision training 
 * 99
 * loss_inf: 5.632
@@ -184,9 +183,19 @@
   * test_acc_glb_mlp_top_5: 0.988
   * test_acc_glb_lin_top_5: 0.985
 
+#### Random
+* epoch 29
+* loss: 0.659
+* train_acc
+    * train_acc_glb_mlp: 0.898
+    * train_acc_glb_lin: 0.890
+* test_acc
+    * test_acc_glb_mlp: 0.883
+    * test_acc_glb_lin: 0.877
+    * test_acc_glb_mlp_top_5: 0.988
+    * test_acc_glb_lin_top_5: 0.986
 
 #### RGB
-
 * epoch 29
 * loss: 0.507
 * train_acc
@@ -218,3 +227,4 @@
 * [Johannes, 27. Aug 2019]: Adopt the pre-processing for amdim training
   * [x] see "RGB / 3x-Depth Padded"
 * Verify the results above
+  * [x] see "RGB / 3x-Depth Padded - Verification "
