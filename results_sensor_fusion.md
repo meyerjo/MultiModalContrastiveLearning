@@ -19,6 +19,36 @@
     * train_acc_glb_lin: 0.656, 
     * test_acc_glb_mlp: 0.715, 
     * test_acc_glb_lin: 0.647
+    
+#### 3xDepth
+##### Self-Supervision training
+* epoch 99
+* loss_inf: 3.976
+* loss_cls: 1.763
+* loss_g2l: 3.334
+* lgt_reg: 0.641
+* train_acc
+  * train_acc_glb_mlp: 0.786
+  * train_acc_glb_lin: 0.665
+* test_acc
+  * test_acc_glb_mlp: 0.741
+  * test_acc_glb_lin: 0.647
+  * test_acc_glb_mlp_top_5: 0.976
+  * test_acc_glb_lin_top_5: 0.939
+
+#### Linear classifier
+* epoch 29 
+* loss: 1.727
+* train_acc
+  * train_acc_glb_mlp: 0.766
+  * train_acc_glb_lin: 0.690
+* test_acc
+  * test_acc_glb_mlp: 0.731
+  * test_acc_glb_lin: 0.668
+  * test_acc_glb_mlp_top_5: 0.970
+  * test_acc_glb_lin_top_5: 0.945
+
+
 
 ## Sensor Fusion
 ### RGB / (jet-)Depth
