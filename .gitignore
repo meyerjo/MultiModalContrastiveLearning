@@ -2,8 +2,11 @@
 default_run/
 *.tfevents.*
 runs/
+runs*/
+*log*/
 .idea/
-
+backup*/
+amdim/
 *.swp
 # Byte-compiled / optimized / DLL files
 __pycache__/
