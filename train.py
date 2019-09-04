@@ -54,6 +54,7 @@ parser.add_argument('--modality_to_test', type=str, default='random', choices=['
 parser.add_argument('--baseline', action='store_true', default=False,
                     help='Indicates whether the whole model should be trained.'
                          'Needs to be combined with classifiers=True')
+parser.add_argument('--epochs', type=int, default=None, help='Number of epochs')
 # ...
 args = parser.parse_args()
 
@@ -119,7 +120,8 @@ def main():
          log_dir=args.output_dir,
          device=torch_device,
          modality_to_test=args.modality_to_test,
-         baseline_training=args.baseline
+         baseline_training=args.baseline,
+         overwrite_epochs=args.epochs
     )
 
 

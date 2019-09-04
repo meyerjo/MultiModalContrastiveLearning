@@ -125,7 +125,7 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
 
 def train_self_supervised(model, learning_rate, dataset, train_loader,
                           test_loader, stat_tracker, checkpoint, log_dir, device,
-                          modality_to_test, baseline_training=False):
+                          modality_to_test, baseline_training=False, overwrite_epochs=None):
     # configure optimizer
     mods_inf = [m for m in model.info_modules]
     mods_cls = [m for m in model.class_modules]

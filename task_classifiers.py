@@ -83,7 +83,7 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
 
 def train_classifiers(model, learning_rate, dataset, train_loader,
                       test_loader, stat_tracker, checkpoint, log_dir, device,
-                      modality_to_test, baseline_training=False):
+                      modality_to_test, baseline_training=False, overwrite_epochs=None):
     # retrain the evaluation classifiers using the trained feature encoder
     for mod in model.class_modules:
         # reset params in the evaluation classifiers
@@ -111,6 +111,8 @@ def train_classifiers(model, learning_rate, dataset, train_loader,
         epochs = 150
     else:
         raise NotImplementedError('Unknown dataset type: {}'.format(dataset))
+    if overwrite_epochs is not None:
+        epochs = overwrite_epochs
     # retrain the model
     _train(
         model, optimizer, scheduler, epochs, train_loader,
