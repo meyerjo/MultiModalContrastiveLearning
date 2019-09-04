@@ -48,6 +48,30 @@
   * test_acc_glb_mlp_top_5: 0.970
   * test_acc_glb_lin_top_5: 0.945
 
+##### run 2
+* epoch 29
+* loss: 1.724
+* train_acc
+  * train_acc_glb_mlp: 0.769
+  * train_acc_glb_lin: 0.691
+* test_acc
+  * test_acc_glb_mlp: 0.731
+  * test_acc_glb_lin: 0.665
+  * test_acc_glb_mlp_top_5: 0.972
+  * test_acc_glb_lin_top_5: 0.948
+  
+##### run 3 - more epochs
+* epoch 59
+* loss: 1.690
+* train_acc
+  * train_acc_glb_mlp: 0.777
+  * train_acc_glb_lin: 0.693
+* test_acc
+  * test_acc_glb_mlp: 0.734
+  * test_acc_glb_lin: 0.670
+  * test_acc_glb_mlp_top_5: 0.973
+  * test_acc_glb_lin_top_5: 0.946
+  
 
 
 ## Sensor Fusion
@@ -257,4 +281,4 @@
 * [Johannes, 27. Aug 2019]: Adopt the pre-processing for amdim training
   * [x] see "RGB / 3x-Depth Padded"
 * Verify the results above
-  * [x] see "RGB / 3x-Depth Padded - Verification "
+  * [x] see "RGB / 3x-Depth Padded - Verification"
