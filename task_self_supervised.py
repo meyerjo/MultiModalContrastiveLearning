@@ -142,6 +142,8 @@ def train_self_supervised(model, learning_rate, dataset, train_loader,
         # -- e.g., milestones=[60, 90], epochs=100
         scheduler = MultiStepLR(optimizer, milestones=[30, 45], gamma=0.2)
         epochs = 100
+    if overwrite_epochs is not None:
+        epochs = overwrite_epochs
     # train the model
     _train(model, optimizer, scheduler, checkpoint, epochs,
            train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test,
