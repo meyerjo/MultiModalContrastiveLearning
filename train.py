@@ -71,6 +71,12 @@ def main():
         raise BaseException('If you want to train the baseline please also activate --classifiers')
     if args.baseline and args.classifiers:
         args.cpt_name = 'amdim_baseline_cpt.pth'
+    if args.modality != 'dual':
+        if args.modality_to_test != args.modality:
+            raise BaseException('Modality for testing should be the same as for testing {} != {}'.format(
+                args.modality_to_test,
+                args.modality
+            ))
 
     # set the RNG seeds (probably more hidden elsewhere...)
     torch.manual_seed(args.seed)
