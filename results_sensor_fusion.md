@@ -4,7 +4,7 @@
 #### RGB (not padded)
 * Results AMDIM - RGB - Crops - No color augmentation
   * Epoch 29, 43 updates -- 0.5194 sec/update
-      * loss: 0.372, 
+    * loss: 0.372, 
     * train_acc_glb_mlp: 0.955, 
     * train_acc_glb_lin: 0.936, 
     * test_acc_glb_mlp: 0.914, 
@@ -20,8 +20,37 @@
     * test_acc_glb_mlp: 0.715, 
     * test_acc_glb_lin: 0.647
     
+
+#### RGB - Padded images
+##### Self-supervised training
+* epoch 99
+* loss_inf: 3.164
+* loss_cls: 0.362
+* loss_g2l: 2.572
+* lgt_reg: 0.592
+* train_acc
+  * train_acc_glb_mlp: 0.964
+  * train_acc_glb_lin: 0.936
+* test_acc
+  * test_acc_glb_mlp: 0.914
+  * test_acc_glb_lin: 0.902
+  * test_acc_glb_mlp_top_5: 0.986
+  * test_acc_glb_lin_top_5: 0.985
+
+#### Linear classifier
+* epoch 29
+* loss: 0.342
+* train_acc
+  * train_acc_glb_mlp: 0.962
+  * train_acc_glb_lin: 0.942
+* test_acc
+  * test_acc_glb_mlp: 0.914
+  * test_acc_glb_lin: 0.909
+  * test_acc_glb_mlp_top_5: 0.988
+  * test_acc_glb_lin_top_5: 0.989
+    
 #### 3xDepth
-##### Self-Supervision training
+##### Self-supervised training
 * epoch 99
 * loss_inf: 3.976
 * loss_cls: 1.763
@@ -72,6 +101,15 @@
   * test_acc_glb_mlp_top_5: 0.973
   * test_acc_glb_lin_top_5: 0.946
   
+
+[2019-09-04 15:48:50] Epoch 119, 73 updates -- 0.5664 sec/update
+[2019-09-04 15:49:34] 119: loss: 1.631
+, train_acc_glb_mlp: 0.788
+, train_acc_glb_lin: 0.697
+, test_acc_glb_mlp: 0.741
+, test_acc_glb_lin: 0.672
+, test_acc_glb_mlp_top_5: 0.973
+, test_acc_glb_lin_top_5: 0.946
 
 
 ## Sensor Fusion
