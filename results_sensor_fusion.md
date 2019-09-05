@@ -101,16 +101,39 @@
   * test_acc_glb_mlp_top_5: 0.973
   * test_acc_glb_lin_top_5: 0.946
   
+##### run 4 - 120 Epochs
+* epoch 119
+* loss: 1.631
+* train_acc
+  * train_acc_glb_mlp: 0.788
+  * train_acc_glb_lin: 0.697
+* test_acc
+  * test_acc_glb_mlp: 0.741
+  * test_acc_glb_lin: 0.672
+  * test_acc_glb_mlp_top_5: 0.973
+  * test_acc_glb_lin_top_5: 0.946
+  
+### 3x-Depth - 300 epochs
+#### Self-Supervised
+* epoch 299
+* loss_inf: 3.292
+* loss_cls: 1.610
+* loss_g2l: 2.688
+* lgt_reg: 0.604
+* train_acc
+  * train_acc_glb_mlp: 0.808
+  * train_acc_glb_lin: 0.689
+* test_acc
+  * test_acc_glb_mlp: 0.758
+  * test_acc_glb_lin: 0.667
+  * test_acc_glb_mlp_top_5: 0.974
+  * test_acc_glb_lin_top_5: 0.945
 
-[2019-09-04 15:48:50] Epoch 119, 73 updates -- 0.5664 sec/update
-[2019-09-04 15:49:34] 119: loss: 1.631
-, train_acc_glb_mlp: 0.788
-, train_acc_glb_lin: 0.697
-, test_acc_glb_mlp: 0.741
-, test_acc_glb_lin: 0.672
-, test_acc_glb_mlp_top_5: 0.973
-, test_acc_glb_lin_top_5: 0.946
+#### Linear Classifier
 
+
+
+---
 
 ## Sensor Fusion
 ### RGB / (jet-)Depth
