@@ -87,13 +87,23 @@ class Falling_Things_Dataset(VisionDataset):
             ind = np.argsort(entries['modalities'])
             entries['file_paths'] = np.array(entries['file_paths'])[ind].tolist()
             entries['modalities'] = np.array(entries['modalities'])[ind].tolist()
+
+            # make sure that all files have the same filestem
+            assert(
+                len(
+                    set([
+                        os.path.splitext(os.path.basename(f))[0].split('.')[0]
+                        for f in entries['file_paths']
+                    ])
+                ) == 1
+            )
             for i in range(len(entries['file_paths'])):
                 entry['data'] += [np.array(Image.open(entries['file_paths'][i]))]
                 entry['modality'] += [entries['modalities'][i]]
 
             assert(len(entry['modality']) <= 2)
             self.data.append(entry)
-            #print(entry['modality'])
+
             self.targets.append(entries['class'])
             self.classes.add(entries['class'])
         self.classes = list(self.classes)

@@ -20,6 +20,8 @@ class Dataset(Enum):
     IN128 = 4
     PLACES205 = 5
     FALLINGTHINGS = 6
+    FALLINGTHINGS_RGB_D = 6
+    FALLINGTHINGS_RGB_DJET = 7
 
 
 def get_encoder_size(dataset):
@@ -30,8 +32,8 @@ def get_encoder_size(dataset):
     if dataset in [Dataset.IN128, Dataset.PLACES205]:
         return 128
     if dataset == Dataset.FALLINGTHINGS:
-        #raise NotImplementedError('TBD')
-        print('randomly outputting a number here')
+        return 128
+    if dataset == Dataset.FALLINGTHINGS_RGB_DJET:
         return 128
     raise RuntimeError("Couldn't get encoder size, unknown dataset: {}".format(dataset))
 
@@ -263,7 +265,7 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         test_transform = train_transform.test_transform
         train_dataset = datasets.ImageFolder(train_dir, train_transform)
         test_dataset = datasets.ImageFolder(val_dir, test_transform)
-    elif dataset == Dataset.FALLINGTHINGS:
+    elif dataset == Dataset.FALLINGTHINGS or dataset == Dataset.FALLINGTHINGS_RGB_D:
         num_classes = 21
         train_transform = TransformsFallingThings128(modality=modality)
         test_transform = train_transform.test_transform
@@ -272,6 +274,36 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
             file_regex = re.compile('\.(left|right)\.jpg$')
         elif modality == 'd' or modality == 'depth':
             file_regex = re.compile('\.(left|right)\.depth\.png$')
+        else:
+            file_regex = None
+
+        train_dataset = Falling_Things_Dataset(
+            root=train_dir, train=True, transform=train_transform,
+            file_filter_regex=file_regex
+        )
+        test_dataset = Falling_Things_Dataset(
+            root=val_dir, train=False, transform=test_transform,
+            file_filter_regex=file_regex
+        )
+    elif dataset == Dataset.FALLINGTHINGS_RGB_DJET:
+        num_classes = 21
+        train_transform = TransformsFallingThings128(
+            modality=modality,
+            normalizer_mod1={
+                'mean': [88.10391786 / 255.,  77.88267129 / 255.,  61.34734314 / 255.],
+                'std': [45.8098147 / 255., 42.98117045 / 255., 39.68807149 / 255.]
+            },
+            normalizer_mod2={
+                'mean': [ 66.41767038/255., 104.19884378/255., 165.15607047/255.],
+                'std': [80.38406076/255., 88.75743179/255., 85.48735799/255.]
+            }
+        )
+        test_transform = train_transform.test_transform
+
+        if modality == 'rgb':
+            file_regex = re.compile('\.(left|right)\.jpg$')
+        elif modality == 'd' or modality == 'depth':
+            file_regex = re.compile('\.(left|right)\.colorized\.depth\.png$')
         else:
             file_regex = None
 
@@ -313,7 +345,9 @@ def _get_directories(dataset, input_dir):
     elif dataset == Dataset.PLACES205:
         train_dir = os.path.join(input_dir, 'places205_256_train/')
         val_dir = os.path.join(input_dir, 'places205_256_val/')
-    elif dataset == Dataset.FALLINGTHINGS:
+    elif dataset == Dataset.FALLINGTHINGS or \
+            dataset == Dataset.FALLINGTHINGS_RGB_DJET or \
+            dataset == Dataset.FALLINGTHINGS_RGB_D:
         train_dir = os.path.join(input_dir, 'train')
         val_dir = os.path.join(input_dir, 'val')
     else:

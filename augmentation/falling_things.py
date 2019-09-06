@@ -27,11 +27,39 @@ class TransformsFallingThings128(object):
         return inputs
 
 
-    def __init__(self, modality=None):
+    def __init__(self, modality=None, normalizer_mod1=None, normalizer_mod2=None):
         """
 
         :param modality: Modality
         """
+        # make sure if one is specified both are specified just to avoid confusion
+        if (normalizer_mod1 is None and normalizer_mod2 is not None) or \
+            (normalizer_mod1 is not None and normalizer_mod2 is None):
+            raise BaseException('If you specify one normalizer you have to specify both')
+
+        # make sure they are both dicts if they are specified
+        if normalizer_mod1 is not None and not isinstance(normalizer_mod1, dict):
+            raise BaseException('normalizer_mod1 is specified but not as dict')
+        if normalizer_mod2 is not None and not isinstance(normalizer_mod2, dict):
+            raise BaseException('normalizer_mod2 is specified but not as dict')
+
+        if all([key in normalizer_mod1.keys() for key in ['mean', 'std']]):
+            raise BaseException('Key does not exist')
+        if all([key in normalizer_mod2.keys() for key in ['mean', 'std']]):
+            raise BaseException('Key does not exist')
+
+        if normalizer_mod1 is None:
+            normalizer_mod1 = {
+                'mean': [88.10391786 / 255.,  77.88267129 / 255.,  61.34734314 / 255.],
+                'std': [45.8098147 / 255., 42.98117045 / 255., 39.68807149 / 255.]
+            }
+
+        if normalizer_mod2 is None:
+            normalizer_mod2 = {
+                'mean': [91.09405015 / 255., 91.09405015 / 255., 91.09405015 / 255.],
+                'std': [61.87289913 / 255., 61.87289913 / 255., 61.87289913 / 255.]
+            }
+
         # image augmentation functions
         if modality is None or modality == 'rgb' or modality == 'd' or modality == 'depth':
             self.flip_lr = transforms.RandomHorizontalFlip(p=0.5)
@@ -48,18 +76,15 @@ class TransformsFallingThings128(object):
             if modality == 'rgb':
                 post_transform_steps += [
                     transforms.Normalize(
-                        mean=[0.405, 0.346, 0.293], std=[0.281, 0.274, 0.274]
+                        mean=normalizer_mod1['mean'], std=normalizer_mod1['std']
                     )]
             elif modality == 'd' or modality == 'depth':
                 post_transform_steps += [
                     transforms.Normalize(
-                        mean=[0.724, 0.324, 0.143], std=[0.332, 0.363, 0.281]
+                        mean=normalizer_mod2['mean'], std=normalizer_mod2['std']
                     )]
             else:
                 raise BaseException('Unknown modality')
-            # post_transform_steps += [
-            #     AddFirstDimension()
-            # ]
 
             post_transform = transforms.Compose(post_transform_steps)
 
@@ -87,16 +112,10 @@ class TransformsFallingThings128(object):
                 # TODO: check the normalization values
                 MultipleInputsNormalize(
                     mean=[
-                        [88.10391786 / 255., 77.88267129 / 255.,
-                         61.34734314 / 255.],
-                        [91.09405015 / 255., 91.09405015 / 255.,
-                         91.09405015 / 255.]
+                        normalizer_mod1['mean'], normalizer_mod2['mean']
                     ],
                     std=[
-                        [45.8098147 / 255., 42.98117045 / 255.,
-                         39.68807149 / 255.],
-                        [61.87289913 / 255., 61.87289913 / 255.,
-                         61.87289913 / 255.],
+                        normalizer_mod1['std'], normalizer_mod2['std']
                     ]
                 ),
                 AddFirstDimension()
