@@ -43,9 +43,9 @@ class TransformsFallingThings128(object):
         if normalizer_mod2 is not None and not isinstance(normalizer_mod2, dict):
             raise BaseException('normalizer_mod2 is specified but not as dict')
 
-        if all([key in normalizer_mod1.keys() for key in ['mean', 'std']]):
+        if not all([key in normalizer_mod1.keys() for key in ['mean', 'std']]):
             raise BaseException('Key does not exist')
-        if all([key in normalizer_mod2.keys() for key in ['mean', 'std']]):
+        if not all([key in normalizer_mod2.keys() for key in ['mean', 'std']]):
             raise BaseException('Key does not exist')
 
         if normalizer_mod1 is None:
