@@ -130,7 +130,16 @@
   * test_acc_glb_lin_top_5: 0.945
 
 #### Linear Classifier
-
+* epoch 29
+* loss: 1.492
+* train_acc
+  * train_acc_glb_mlp: 0.800
+  * train_acc_glb_lin: 0.731
+* test_acc
+  * test_acc_glb_mlp: 0.757
+  * test_acc_glb_lin: 0.699
+  * test_acc_glb_mlp_top_5: 0.977
+  * test_acc_glb_lin_top_5: 0.956
 
 
 ---
@@ -333,6 +342,48 @@
     * test_acc_glb_lin: 0.824
     * test_acc_glb_mlp_top_5: 0.984
     * test_acc_glb_lin_top_5: 0.981
+    
+
+### RGB / jet-Depth 
+#### Self-Supervised training 
+* epoch 99
+* loss_inf: 6.054
+* loss_cls: 0.739
+* loss_g2l: 5.248
+* lgt_reg: 0.805
+* train_acc
+  * train_acc_glb_mlp: 0.890
+  * train_acc_glb_lin: 0.872
+* test_acc
+  * test_acc_glb_mlp: 0.870
+  * test_acc_glb_lin: 0.853
+  * test_acc_glb_mlp_top_5: 0.984
+  * test_acc_glb_lin_top_5: 0.981
+
+#### RGB
+* epoch 29
+* loss: 0.590
+* train_acc
+  * train_acc_glb_mlp: 0.914
+  * train_acc_glb_lin: 0.902
+* test_acc
+  * test_acc_glb_mlp: 0.918
+  * test_acc_glb_lin: 0.910
+  * test_acc_glb_mlp_top_5: 0.988
+  * test_acc_glb_lin_top_5: 0.987
+
+
+#### jetd
+* epoch 29
+* loss: 1.135
+* train_acc
+  * train_acc_glb_mlp: 0.821
+  * train_acc_glb_lin: 0.801
+* test_acc
+  * test_acc_glb_mlp: 0.852
+  * test_acc_glb_lin: 0.837
+  * test_acc_glb_mlp_top_5: 0.988
+  * test_acc_glb_lin_top_5: 0.986
 
 
 ## Timeline
