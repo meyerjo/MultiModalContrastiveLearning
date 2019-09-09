@@ -213,8 +213,12 @@ def main():
     ce_loss = torch.nn.CrossEntropyLoss()
     scheduler = MultiStepLR(optimizer, milestones=[60, 90, 120], gamma=0.2)
     epochs = 150
+    if args.epochs is not None:
+        print('Epochs amount overwritten: {}'.format(args.epochs))
+        epochs = args.epochs
 
     model, optimizer = mixed_precision.initialize(model, optimizer)
+    model = model.to(torch_device)
     # ...
     time_start = time.time()
     total_updates = 0
@@ -224,9 +228,9 @@ def main():
         for _, ((images1, images2), labels, modalities) in enumerate(
                 train_loader):
             # get data and info about this minibatch
-            images1 = images1.to(torch_device)
-            images2 = images2.to(torch_device)
-            labels = labels.to(torch_device)
+            images1 = images1.to(torch_device).cuda()
+            images2 = images2.to(torch_device).cuda()
+            labels = labels.to(torch_device).cuda()
             # run forward pass through model and collect activations
             res_dict = model(
                 x1=images1, x2=images2,
@@ -252,7 +256,7 @@ def main():
                 spu = (time_stop - time_start) / 100.
                 print(
                     '[{0}] Epoch {1:d}, {2:d} updates -- {3:.4f} sec/update\t{4:.5f}'
-                    .format(CURRENT_TIME(), epoch, epoch_updates, spu, loss))
+                        .format(CURRENT_TIME(), epoch, epoch_updates, spu, loss))
                 time_start = time.time()
 
         # step learning rate scheduler
@@ -265,6 +269,7 @@ def main():
         print(diag_str)
         sys.stdout.flush()
         stat_tracker.record_stats(epoch_stats.averages(epoch, prefix='eval/'))
+
 
 
 if __name__ == "__main__":
