@@ -1,13 +1,10 @@
-import math
+import numpy as np
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from mixed_precision import maybe_half
-from model import Encoder, Evaluator, MLPClassifier
-from utils import flatten, random_locs_2d, Flatten
-from costs import LossMultiNCE
+from model import Encoder, MLPClassifier
 
 
 def has_many_gpus():

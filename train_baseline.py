@@ -13,7 +13,6 @@ import mixed_precision
 from datetime import datetime
 from checkpoint import Checkpoint
 from datasets import build_dataset, get_dataset, get_encoder_size
-from model import Model
 from model_baseline import BaselineModel
 from stats import StatTracker, AverageMeterSet
 from utils import weight_init, _warmup_batchnorm
