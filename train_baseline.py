@@ -255,7 +255,7 @@ def main():
             spu = (time.time() - start_epoch) / total_elements
             print(
                 '[{0}] Epoch {1:d}, {2:d} data points -- {3:.4f} sec/dp'
-                        .format(CURRENT_TIME(), total_elements, -1, spu)
+                        .format(CURRENT_TIME(), epoch, total_elements, spu)
             )
 
         # step learning rate scheduler
