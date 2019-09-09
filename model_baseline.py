@@ -4,12 +4,125 @@ import torch
 import torch.nn as nn
 
 from mixed_precision import maybe_half
-from model import Encoder, MLPClassifier
+from model import MLPClassifier, ConvResNxN, MaybeBatchNorm2d, Conv3x3, \
+    ConvResBlock, FakeRKHSConvNet, NopNet
 
 
 def has_many_gpus():
     return torch.cuda.device_count() >= 6
 
+
+class BaselineEncoder(nn.Module):
+    def __init__(self, dummy_batch, nc=3, ndf=64, n_rkhs=512, n_depth=3,
+                 enc_size=32, use_bn=False):
+        super(BaselineEncoder, self).__init__()
+        self.nc = nc
+        self.ndf = ndf
+        self.n_rkhs = n_rkhs
+        self.use_bn = use_bn
+        self.dim2layer = None
+
+        # encoding block for local features
+        print('Using a {enc_size}x{enc_size} encoder'.format(enc_size=enc_size))
+        if enc_size == 32:
+            self.layer_list = nn.ModuleList([
+                Conv3x3(nc, ndf, 3, 1, 0, False),
+                ConvResNxN(ndf, ndf, 1, 1, 0, use_bn),
+                ConvResBlock(ndf * 1, ndf * 2, 4, 2, 0, n_depth, use_bn),
+                ConvResBlock(ndf * 2, ndf * 4, 2, 2, 0, n_depth, use_bn),
+                MaybeBatchNorm2d(ndf * 4, True, use_bn),
+                ConvResBlock(ndf * 4, ndf * 4, 3, 1, 0, n_depth, use_bn),
+                ConvResBlock(ndf * 4, ndf * 4, 3, 1, 0, n_depth, use_bn),
+                ConvResNxN(ndf * 4, n_rkhs, 3, 1, 0, use_bn),
+                MaybeBatchNorm2d(n_rkhs, True, True)
+            ])
+        elif enc_size == 64:
+            self.layer_list = nn.ModuleList([
+                Conv3x3(nc, ndf, 3, 1, 0, False),
+                ConvResBlock(ndf * 1, ndf * 2, 4, 2, 0, n_depth, use_bn),
+                ConvResBlock(ndf * 2, ndf * 4, 4, 2, 0, n_depth, use_bn),
+                ConvResBlock(ndf * 4, ndf * 8, 2, 2, 0, n_depth, use_bn),
+                MaybeBatchNorm2d(ndf * 8, True, use_bn),
+                ConvResBlock(ndf * 8, ndf * 8, 3, 1, 0, n_depth, use_bn),
+                ConvResBlock(ndf * 8, ndf * 8, 3, 1, 0, n_depth, use_bn),
+                ConvResNxN(ndf * 8, n_rkhs, 3, 1, 0, use_bn),
+                MaybeBatchNorm2d(n_rkhs, True, True)
+            ])
+        elif enc_size == 128:
+            self.layer_list = nn.ModuleList([
+                Conv3x3(nc, ndf, 5, 2, 2, False, pad_mode='reflect'),
+                Conv3x3(ndf, ndf, 3, 1, 0, False),
+                ConvResBlock(ndf * 1, ndf * 2, 4, 2, 0, n_depth, use_bn),
+                ConvResBlock(ndf * 2, ndf * 4, 4, 2, 0, n_depth, use_bn),
+                ConvResBlock(ndf * 4, ndf * 8, 2, 2, 0, n_depth, use_bn),
+                MaybeBatchNorm2d(ndf * 8, True, use_bn),
+                ConvResBlock(ndf * 8, ndf * 8, 3, 1, 0, n_depth, use_bn),
+                ConvResBlock(ndf * 8, ndf * 8, 3, 1, 0, n_depth, use_bn),
+                ConvResNxN(ndf * 8, n_rkhs, 3, 1, 0, use_bn),
+                MaybeBatchNorm2d(n_rkhs, True, True)
+            ])
+        else:
+            raise RuntimeError("Could not build encoder."
+                               "Encoder size {} is not supported".format(enc_size))
+        self._config_modules(dummy_batch, [1, 5, 7], n_rkhs, use_bn)
+
+    def init_weights(self, init_scale=1.):
+        '''
+        Run custom weight init for modules...
+        '''
+        for layer in self.layer_list:
+            if isinstance(layer, (ConvResNxN, ConvResBlock)):
+                layer.init_weights(init_scale)
+        for layer in self.modules():
+            if isinstance(layer, (ConvResNxN, ConvResBlock)):
+                layer.init_weights(init_scale)
+            if isinstance(layer, FakeRKHSConvNet):
+                layer.init_weights(init_scale)
+
+    def _config_modules(self, x, rkhs_layers, n_rkhs, use_bn):
+        '''
+        Configure the modules for extracting fake rkhs embeddings for infomax.
+        '''
+        enc_acts = self._forward_acts(x)
+        self.dim2layer = {}
+        for i, h_i in enumerate(enc_acts):
+            for d in rkhs_layers:
+                if h_i.size(2) == d:
+                    self.dim2layer[d] = i
+        # get activations and feature sizes at different layers
+        self.ndf_1 = enc_acts[self.dim2layer[1]].size(1)
+        self.ndf_5 = enc_acts[self.dim2layer[5]].size(1)
+        self.ndf_7 = enc_acts[self.dim2layer[7]].size(1)
+        # configure modules for fake rkhs embeddings
+        self.rkhs_block_1 = NopNet()
+        self.rkhs_block_5 = FakeRKHSConvNet(self.ndf_5, n_rkhs, use_bn)
+        self.rkhs_block_7 = FakeRKHSConvNet(self.ndf_7, n_rkhs, use_bn)
+
+    def _forward_acts(self, x):
+        '''
+        Return activations from all layers.
+        '''
+        # run forward pass through all layers
+        layer_acts = [x]
+        for _, layer in enumerate(self.layer_list):
+            layer_in = layer_acts[-1]
+            layer_out = layer(layer_in)
+            layer_acts.append(layer_out)
+        # remove input from the returned list of activations
+        return_acts = layer_acts[1:]
+        return return_acts
+
+    def forward(self, x):
+        '''
+        Compute activations and Fake RKHS embeddings for the batch.
+        '''
+        # compute activations in all layers for x
+        acts = self._forward_acts(x)
+        # gather rkhs embeddings from certain layers
+        r1 = self.rkhs_block_1(acts[self.dim2layer[1]])
+        r5 = self.rkhs_block_5(acts[self.dim2layer[5]])
+        r7 = self.rkhs_block_7(acts[self.dim2layer[7]])
+        return r1, r5, r7
 
 class BaselineModel(nn.Module):
     def __init__(self, ndf, n_classes, n_rkhs, tclip=20.,
@@ -20,7 +133,7 @@ class BaselineModel(nn.Module):
         dummy_batch = torch.zeros((2, 3, enc_size, enc_size))
 
         # encoder that provides multiscale features
-        self.encoder = Encoder(dummy_batch, nc=3, ndf=ndf, n_rkhs=n_rkhs,
+        self.encoder = BaselineEncoder(dummy_batch, nc=3, ndf=ndf, n_rkhs=n_rkhs,
                                n_depth=n_depth, enc_size=enc_size,
                                use_bn=use_bn)
         rkhs_1, rkhs_5, _ = self.encoder(dummy_batch)
