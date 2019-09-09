@@ -200,10 +200,18 @@ def main():
     )
     model = model.to(torch_device)
 
+    for mod in model.info_modules:
+        # reset params in the evaluation classifiers
+        mod.apply(weight_init)
+
     for mod in model.class_modules:
         # reset params in the evaluation classifiers
         mod.apply(weight_init)
-    mods_to_opt = [m for m in model.class_modules]
+
+
+    mods_inf = [m for m in model.info_modules]
+    mods_cls = [m for m in model.class_modules]
+    mods_to_opt = mods_inf + mods_cls
     # configure optimizer
     optimizer = optim.Adam(
         [{'params': mod.parameters(), 'lr': args.learning_rate} for mod in
