@@ -220,11 +220,11 @@ def main():
     model, optimizer = mixed_precision.initialize(model, optimizer)
     model = model.to(torch_device)
     # ...
-    time_start = time.time()
-    total_updates = 0
     for epoch in range(epochs):
-        epoch_updates = 0
+
+        start_epoch = time.time()
         epoch_stats = AverageMeterSet()
+        total_elements = 0
         for _, ((images1, images2), labels, modalities) in enumerate(
                 train_loader):
             # get data and info about this minibatch
@@ -248,16 +248,15 @@ def main():
             # record loss and accuracy on minibatch
             epoch_stats.update('loss', loss.item(), n=1)
             update_train_accuracies(epoch_stats, labels, lgt_glb_mlp)
-            # shortcut diagnostics to deal with long epochs
-            total_updates += 1
-            epoch_updates += 1
-            if (total_updates % 100) == 0:
-                time_stop = time.time()
-                spu = (time_stop - time_start) / 100.
-                print(
-                    '[{0}] Epoch {1:d}, {2:d} updates -- {3:.4f} sec/update\t{4:.5f}'
-                        .format(CURRENT_TIME(), epoch, epoch_updates, spu, loss))
-                time_start = time.time()
+            total_elements += 1
+
+
+        if epoch % 100 == 0:
+            spu = (time.time() - start_epoch) / total_elements
+            print(
+                '[{0}] Epoch {1:d}, {2:d} data points -- {3:.4f} sec/dp'
+                        .format(CURRENT_TIME(), total_elements, -1, spu)
+            )
 
         # step learning rate scheduler
         scheduler.step(epoch)
@@ -265,7 +264,7 @@ def main():
         test_model(model, test_loader, torch_device, epoch_stats,
                    max_evals=500000, feat_selection='rgb')
         epoch_str = epoch_stats.pretty_string(ignore=model.tasks)
-        diag_str = '[{0}] {1:d}: {2:s}'.format(CURRENT_TIME(), epoch, epoch_str)
+        diag_str = '[{0}] * epoch {1:d}\n * {2:s}'.format(CURRENT_TIME(), epoch, epoch_str)
         print(diag_str)
         sys.stdout.flush()
         stat_tracker.record_stats(epoch_stats.averages(epoch, prefix='eval/'))
