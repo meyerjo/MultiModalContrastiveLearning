@@ -1,7 +1,7 @@
 # AMDIM
 ## Baseline - Supervision
 ### Single Modality
-#### RGB - Fully Supervised
+#### RGB 
 * epoch 149
 * loss: 0.032
 * train_acc
@@ -10,7 +10,7 @@
   * test_acc_glb_mlp: 0.932
   * test_acc_glb_mlp_top_5: 0.992
 
-#### jet-Depth (padded) - Fully Supervised
+#### jet-Depth (padded)
 * epoch 149
 * loss: 0.581
 * train_acc
@@ -19,7 +19,7 @@
   * test_acc_glb_mlp: 0.835
   * test_acc_glb_mlp_top_5: 0.984
 
-#### 3xDepth (padded) - Fully Supervised
+#### 3xDepth (padded)
 * epoch 149
 * loss: 0.851
 * train_acc
