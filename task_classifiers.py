@@ -106,6 +106,12 @@ def train_classifiers(model, learning_rate, dataset, train_loader,
     elif dataset == Dataset.FALLINGTHINGS and not baseline_training:
         scheduler = MultiStepLR(optimizer, milestones=[15, 25], gamma=0.2)
         epochs = 30
+    elif dataset == Dataset.FALLINGTHINGS_RGB_D and not baseline_training:
+        scheduler = MultiStepLR(optimizer, milestones=[15, 25], gamma=0.2)
+        epochs = 30
+    elif dataset == Dataset.FALLINGTHINGS_RGB_DJET and not baseline_training:
+        scheduler = MultiStepLR(optimizer, milestones=[15, 25], gamma=0.2)
+        epochs = 30
     elif dataset == Dataset.FALLINGTHINGS and baseline_training:
         scheduler = MultiStepLR(optimizer, milestones=[60, 90, 120], gamma=0.2)
         epochs = 150
