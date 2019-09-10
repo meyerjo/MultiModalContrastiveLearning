@@ -1,5 +1,34 @@
 # AMDIM
-## Baseline
+## Baseline - Supervision
+### Single Modality
+#### RGB - Fully Supervised
+* epoch 149
+* loss: 0.032
+* train_acc
+  * train_acc_glb_mlp: 0.990
+* test_acc
+  * test_acc_glb_mlp: 0.932
+  * test_acc_glb_mlp_top_5: 0.992
+
+#### jet-Depth (padded) - Fully Supervised
+* epoch 149
+* loss: 0.581
+* train_acc
+  * train_acc_glb_mlp: 0.793
+* test_acc
+  * test_acc_glb_mlp: 0.835
+  * test_acc_glb_mlp_top_5: 0.984
+
+#### 3xDepth (padded) - Fully Supervised
+* epoch 149
+* loss: 0.851
+* train_acc
+  * train_acc_glb_mlp: 0.705
+* test_acc
+  * test_acc_glb_mlp: 0.792
+  * test_acc_glb_mlp_top_5: 0.977
+
+## Baseline - AMDIM
 ### Single Modality
 #### RGB (not padded)
 * Results AMDIM - RGB - Crops - No color augmentation
