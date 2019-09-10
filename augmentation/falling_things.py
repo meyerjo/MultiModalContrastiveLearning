@@ -5,6 +5,23 @@ from torchvision import transforms
 
 INTERP = 3
 
+
+NORMALIZATION_PARAMS = {
+    'RGB': {
+        'mean': [88.10391786 / 255., 77.88267129 / 255., 61.34734314 / 255.],
+        'std': [45.8098147 / 255., 42.98117045 / 255., 39.68807149 / 255.]
+    },
+    'DEPTH': {
+        'mean': [91.09405015 / 255., 91.09405015 / 255., 91.09405015 / 255.],
+        'std': [61.87289913 / 255., 61.87289913 / 255., 61.87289913 / 255.]
+    },
+    'JET-DEPTH': {
+        'mean': [ 66.41767038/255., 104.19884378/255., 165.15607047/255.],
+        'std': [80.38406076/255., 88.75743179/255., 85.48735799/255.]
+    },
+}
+
+
 class TransformsFallingThings128(object):
     '''
     TransformsFallingThings128 dataset, for use with 128x128 full image encoder.
@@ -34,7 +51,7 @@ class TransformsFallingThings128(object):
         """
         # make sure if one is specified both are specified just to avoid confusion
         if (normalizer_mod1 is None and normalizer_mod2 is not None) or \
-            (normalizer_mod1 is not None and normalizer_mod2 is None):
+                (normalizer_mod1 is not None and normalizer_mod2 is None):
             raise BaseException('If you specify one normalizer you have to specify both')
 
         # make sure they are both dicts if they are specified
@@ -43,22 +60,20 @@ class TransformsFallingThings128(object):
         if normalizer_mod2 is not None and not isinstance(normalizer_mod2, dict):
             raise BaseException('normalizer_mod2 is specified but not as dict')
 
-        if (normalizer_mod1 is not None) and not all([key in normalizer_mod1.keys() for key in ['mean', 'std']]):
-            raise BaseException('Key does not exist')
-        if (normalizer_mod2 is not None) and not all([key in normalizer_mod2.keys() for key in ['mean', 'std']]):
-            raise BaseException('Key does not exist')
+        if (normalizer_mod1 is not None) and \
+                not all([key in normalizer_mod1.keys() for key in ['mean', 'std']]):
+            raise BaseException(
+                'Key ("mean" or "std") does not exist in normalizer_mod1')
+        if (normalizer_mod2 is not None) and \
+                not all([key in normalizer_mod2.keys() for key in ['mean', 'std']]):
+            raise BaseException(
+                'Key ("mean" or "std") does not exist in normalizer_mod2')
 
         if normalizer_mod1 is None:
-            normalizer_mod1 = {
-                'mean': [88.10391786 / 255.,  77.88267129 / 255.,  61.34734314 / 255.],
-                'std': [45.8098147 / 255., 42.98117045 / 255., 39.68807149 / 255.]
-            }
+            normalizer_mod1 = NORMALIZATION_PARAMS['RGB']
 
         if normalizer_mod2 is None:
-            normalizer_mod2 = {
-                'mean': [91.09405015 / 255., 91.09405015 / 255., 91.09405015 / 255.],
-                'std': [61.87289913 / 255., 61.87289913 / 255., 61.87289913 / 255.]
-            }
+            normalizer_mod2 = NORMALIZATION_PARAMS['DEPTH']
 
         # image augmentation functions
         if modality is None or modality == 'rgb' or modality == 'd' or modality == 'depth':
@@ -66,11 +81,6 @@ class TransformsFallingThings128(object):
             rand_crop = \
                 transforms.RandomResizedCrop(128, scale=(0.3, 1.0), ratio=(0.7, 1.4),
                                              interpolation=INTERP)
-
-            col_jitter = transforms.RandomApply([
-                transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8)
-            rnd_gray = transforms.RandomGrayscale(p=0.25)
-
 
             post_transform_steps = [transforms.ToTensor()]
             if modality == 'rgb':
