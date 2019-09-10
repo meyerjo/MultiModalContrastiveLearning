@@ -38,7 +38,9 @@ class Falling_Things_Dataset(VisionDataset):
             ]
         if file_filter_regex is not None:
             files_list = [f for f in files_list if file_filter_regex.search(f[0]) is not None]
-
+         
+        if len(files_list) == 0:
+            raise BaseException('file list is empty')
         print('Grouping files by filestem')
         # Group them by filestem
         # TODO: test this with multiple modalities
@@ -62,7 +64,8 @@ class Falling_Things_Dataset(VisionDataset):
             files_dict[dict_key]['modalities'].append(modality)
 
         # make sure we have the same number of modality-entries for each element
-        assert(len(set([len(item['modalities']) for k, item in files_dict.items()])) == 1)
+        if not (len(set([len(item['modalities']) for k, item in files_dict.items()])) == 1):
+            raise BaseException('We expect the number of modalities read per entry to be unique across all data points. However, reading resulting in a different amount of modalities: {}'.format(set([len(item['modalities']) for k, item in files_dict.items()])))
 
         modality_list = [item['modalities'] for k, item in files_dict.items()]
         modality_list_flat = list(itertools.chain(*modality_list))
