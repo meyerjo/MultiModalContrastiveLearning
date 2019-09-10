@@ -257,8 +257,7 @@ def main():
             epoch_stats.update('loss', loss.item(), n=1)
             update_train_accuracies(epoch_stats, labels, lgt_glb_mlp)
             total_elements += 1
-
-
+        checkpoint.update(epoch + 1, epoch)
         
         spu = (time.time() - start_epoch) / total_elements
         print(
