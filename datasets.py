@@ -7,7 +7,8 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 
-from augmentation.falling_things import TransformsFallingThings128
+from augmentation.falling_things import TransformsFallingThings128, \
+    NORMALIZATION_PARAMS
 from data_io.falling_things import Falling_Things_Dataset
 
 INTERP = 3
@@ -267,7 +268,11 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         test_dataset = datasets.ImageFolder(val_dir, test_transform)
     elif dataset == Dataset.FALLINGTHINGS or dataset == Dataset.FALLINGTHINGS_RGB_D:
         num_classes = 21
-        train_transform = TransformsFallingThings128(modality=modality)
+        train_transform = TransformsFallingThings128(
+            modality=modality,
+            normalizer_mod1=NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=NORMALIZATION_PARAMS['DEPTH']
+        )
         test_transform = train_transform.test_transform
 
         if modality == 'rgb':
@@ -289,14 +294,8 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         num_classes = 21
         train_transform = TransformsFallingThings128(
             modality=modality,
-            normalizer_mod1={
-                'mean': [88.10391786 / 255.,  77.88267129 / 255.,  61.34734314 / 255.],
-                'std': [45.8098147 / 255., 42.98117045 / 255., 39.68807149 / 255.]
-            },
-            normalizer_mod2={
-                'mean': [ 66.41767038/255., 104.19884378/255., 165.15607047/255.],
-                'std': [80.38406076/255., 88.75743179/255., 85.48735799/255.]
-            }
+            normalizer_mod1=NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=NORMALIZATION_PARAMS['JET-DEPTH']
         )
         test_transform = train_transform.test_transform
 

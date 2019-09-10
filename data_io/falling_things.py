@@ -1,14 +1,10 @@
 import itertools
 import os
-import pickle
 import re
-import sys
-import numpy as np
-import torch
 
+import numpy as np
 from PIL import Image
 from torchvision.datasets import VisionDataset
-from torchvision.datasets.utils import check_integrity
 
 
 class Falling_Things_Dataset(VisionDataset):
