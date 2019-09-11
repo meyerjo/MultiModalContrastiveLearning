@@ -66,7 +66,8 @@ class Falling_Things_Dataset(VisionDataset):
         modality_list = [item['modalities'] for k, item in files_dict.items()]
         modality_list_flat = list(itertools.chain(*modality_list))
 
-        print('Found the following modalities: {}'.format(set(modality_list_flat)))
+        print('Found the following modalities: {}'.format(
+            sorted(list(set(modality_list_flat)))))
         print('Loading the data...')
         self.data = []
         self.targets = []
