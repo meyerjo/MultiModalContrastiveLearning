@@ -68,8 +68,11 @@ def main():
     if args.amp:
         mixed_precision.enable_mixed_precision()
 
-    if args.baseline and not args.classifiers:
-        raise BaseException('If you want to train the baseline please also activate --classifiers')
+    if args.baseline and  args.classifiers:
+        print('Mode active which trains classifiers and baseline - without classification loss')
+    elif args.baseline:
+        print('Mode active which trains classifiers and feature extract at the same time')
+
     if args.baseline and args.classifiers:
         args.cpt_name = 'amdim_baseline_cpt.pth'
     if args.modality != 'dual':
