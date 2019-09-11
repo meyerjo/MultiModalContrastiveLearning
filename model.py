@@ -150,7 +150,7 @@ class Evaluator(nn.Module):
         self.block_glb_lin = \
             MLPClassifier(self.dim_1, self.n_classes, n_hidden=None, p=0.0)
 
-    def forward(self, ftr_1):
+    def forward(self, ftr_1, detach=True):
         '''
         Input:
           ftr_1 : features at 1x1 layer
@@ -160,7 +160,11 @@ class Evaluator(nn.Module):
         '''
         # collect features to feed into classifiers
         # - always detach() -- send no grad into encoder!
-        h_top_cls = flatten(ftr_1).detach()
+        if detach:
+            h_top_cls = flatten(ftr_1).detach()
+        else:
+            h_top_cls = flatten(ftr_1)
+
         # compute predictions
         lgt_glb_mlp = self.block_glb_mlp(h_top_cls)
         lgt_glb_lin = self.block_glb_lin(h_top_cls)
@@ -250,7 +254,7 @@ class Model(nn.Module):
             else:
                 raise BaseException('Unknown modality {}'.format(modality))
 
-            lgt_glb_mlp, lgt_glb_lin = self.evaluator(rkhs_1)
+            lgt_glb_mlp, lgt_glb_lin = self.evaluator(rkhs_1, detach=no_grad)
             res_dict['class'] = [lgt_glb_mlp, lgt_glb_lin]
             res_dict['rkhs_glb'] = flatten(rkhs_1)
             return res_dict
@@ -289,7 +293,7 @@ class Model(nn.Module):
 
         # compute classifier logits for online eval during infomax training
         # - we do this for both images in each augmented pair...
-        lgt_glb_mlp, lgt_glb_lin = self.evaluator(ftr_1=torch.cat([r1_x1, r1_x2]))
+        lgt_glb_mlp, lgt_glb_lin = self.evaluator(ftr_1=torch.cat([r1_x1, r1_x2]), detach=(not training_all))
         res_dict['class'] = [lgt_glb_mlp, lgt_glb_lin]
         return res_dict
 
