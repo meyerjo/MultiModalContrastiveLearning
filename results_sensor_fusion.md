@@ -11,22 +11,25 @@
   * test_acc_glb_mlp_top_5: 0.992
 
 #### jet-Depth (padded)
-* epoch 149
-* loss: 0.581
+* epoch 299
+* loss: 0.583
 * train_acc
-  * train_acc_glb_mlp: 0.793
+  * train_acc_glb_mlp: 0.798
 * test_acc
-  * test_acc_glb_mlp: 0.835
-  * test_acc_glb_mlp_top_5: 0.984
+  * test_acc_glb_mlp: 0.841
+  * test_acc_glb_mlp_top_5: 0.985
+
 
 #### 3xDepth (padded)
-* epoch 149
-* loss: 0.851
+* epoch 299
+* loss: 0.864
 * train_acc
-  * train_acc_glb_mlp: 0.705
+  * train_acc_glb_mlp: 0.701
 * test_acc
-  * test_acc_glb_mlp: 0.792
-  * test_acc_glb_mlp_top_5: 0.977
+  * test_acc_glb_mlp: 0.784
+  * test_acc_glb_mlp_top_5: 0.975
+
+---
 
 ## Baseline - AMDIM
 ### Single Modality
