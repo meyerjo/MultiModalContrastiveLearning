@@ -101,7 +101,11 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
                 'loss_g2l_1t7': res_dict['g2l_1t7'].item(),
                 'loss_g2l_5t5': res_dict['g2l_5t5'].item()
             }, n=1)
-            update_train_accuracies(epoch_stats, concat_labels, lgt_glb_mlp, lgt_glb_lin)
+            if baseline_training and \
+                    (modality_to_test == 'rgb' or modality_to_test == 'depth'):
+                update_train_accuracies(epoch_stats, labels, lgt_glb_mlp, lgt_glb_lin)
+            else:
+                update_train_accuracies(epoch_stats, concat_labels, lgt_glb_mlp, lgt_glb_lin)
 
             # shortcut diagnostics to deal with long epochs
             total_updates += 1
