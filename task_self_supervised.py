@@ -68,14 +68,15 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
             loss_inf = loss_g2l + res_dict['lgt_reg']
 
             # compute loss for online evaluation classifiers
-            loss_cls = (loss_xent(lgt_glb_mlp, concat_labels) +
-                        loss_xent(lgt_glb_lin, concat_labels))
             if baseline_training and \
                     (modality_to_test == 'rgb' or modality_to_test == 'depth'):
                 if _ == 0:
                     print('Using unconcatenated labels')
                 loss_cls = (loss_xent(lgt_glb_mlp, labels) +
                             loss_xent(lgt_glb_lin, labels))
+            else:
+                loss_cls = (loss_xent(lgt_glb_mlp, concat_labels) +
+                            loss_xent(lgt_glb_lin, concat_labels))
 
             # do hacky learning rate warmup -- we stop when LR hits lr_real
             if (total_updates < 500):
