@@ -234,6 +234,8 @@ class Model(nn.Module):
           x1 : images from which to extract features -- x1 ~ A(x)
           x2 : images from which to extract features -- x2 ~ A(x)
           class_only : whether we want all outputs for infomax training
+          modality:
+          training_all:
         Output:
           res_dict : various outputs depending on the task
         '''
@@ -293,7 +295,18 @@ class Model(nn.Module):
 
         # compute classifier logits for online eval during infomax training
         # - we do this for both images in each augmented pair...
-        lgt_glb_mlp, lgt_glb_lin = self.evaluator(ftr_1=torch.cat([r1_x1, r1_x2]), detach=(not training_all))
+        if training_all:
+            if modality == 'rgb':
+                lgt_glb_mlp, lgt_glb_lin = self.evaluator(
+                    ftr_1=r1_x1, detach=(not training_all))
+            elif modality == 'depth':
+                lgt_glb_mlp, lgt_glb_lin = self.evaluator(
+                    ftr_1=r1_x2, detach=(not training_all))
+            else:
+                lgt_glb_mlp, lgt_glb_lin = self.evaluator(
+                    ftr_1=torch.cat([r1_x1, r1_x2]), detach=(not training_all))
+        else:
+            lgt_glb_mlp, lgt_glb_lin = self.evaluator(ftr_1=torch.cat([r1_x1, r1_x2]), detach=(not training_all))
         res_dict['class'] = [lgt_glb_mlp, lgt_glb_lin]
         return res_dict
 

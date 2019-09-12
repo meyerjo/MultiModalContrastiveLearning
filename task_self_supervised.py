@@ -48,11 +48,14 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
 
         for _, ((images1, images2), labels, modalities) in enumerate(train_loader):
             # get data and info about this minibatch
-            labels = torch.cat([labels, labels]).to(device)
+            concat_labels = torch.cat([labels, labels]).to(device)
             images1 = images1.float().to(device)
             images2 = images2.float().to(device)
             # run forward pass through model to get global and local features
-            res_dict = model(x1=images1, x2=images2, class_only=False)
+            if baseline_training:
+                res_dict = model(x1=images1, x2=images2, class_only=False, modality=modality_to_test, training_all=baseline_training)
+            else:
+                res_dict = model(x1=images1, x2=images2, class_only=False)
             lgt_glb_mlp, lgt_glb_lin = res_dict['class']
             # compute costs for all self-supervised tasks
             loss_g2l = (res_dict['g2l_1t5'] +
@@ -61,8 +64,12 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
             loss_inf = loss_g2l + res_dict['lgt_reg']
 
             # compute loss for online evaluation classifiers
-            loss_cls = (loss_xent(lgt_glb_mlp, labels) +
-                        loss_xent(lgt_glb_lin, labels))
+            loss_cls = (loss_xent(lgt_glb_mlp, concat_labels) +
+                        loss_xent(lgt_glb_lin, concat_labels))
+            if baseline_training and \
+                    (modality_to_test == 'rgb' or modality_to_test == 'depth'):
+                loss_cls = (loss_xent(lgt_glb_mlp, labels) +
+                            loss_xent(lgt_glb_lin, labels))
 
             # do hacky learning rate warmup -- we stop when LR hits lr_real
             if (total_updates < 500):
@@ -86,7 +93,7 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
                 'loss_g2l_1t7': res_dict['g2l_1t7'].item(),
                 'loss_g2l_5t5': res_dict['g2l_5t5'].item()
             }, n=1)
-            update_train_accuracies(epoch_stats, labels, lgt_glb_mlp, lgt_glb_lin)
+            update_train_accuracies(epoch_stats, concat_labels, lgt_glb_mlp, lgt_glb_lin)
 
             # shortcut diagnostics to deal with long epochs
             total_updates += 1
