@@ -53,6 +53,10 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
             images2 = images2.float().to(device)
             # run forward pass through model to get global and local features
             if baseline_training:
+                if _ == 0:
+                    print('modality_to_test: {}, training_all: {}'.format(
+                        modality_to_test, baseline_training
+                    ))
                 res_dict = model(x1=images1, x2=images2, class_only=False, modality=modality_to_test, training_all=baseline_training)
             else:
                 res_dict = model(x1=images1, x2=images2, class_only=False)
@@ -68,6 +72,8 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
                         loss_xent(lgt_glb_lin, concat_labels))
             if baseline_training and \
                     (modality_to_test == 'rgb' or modality_to_test == 'depth'):
+                if _ == 0:
+                    print('Using unconcatenated labels')
                 loss_cls = (loss_xent(lgt_glb_mlp, labels) +
                             loss_xent(lgt_glb_lin, labels))
 
