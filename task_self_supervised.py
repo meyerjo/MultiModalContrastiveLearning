@@ -23,7 +23,8 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
     Training loop for optimizing encoder
     '''
     # make sure that we are not in baseline training mode
-    assert(not baseline_training)
+    if not baseline_training:
+        print('Baseline Training is activated')
 
     # If mixed precision is on, will add the necessary hooks into the model
     # and optimizer for half() conversions
