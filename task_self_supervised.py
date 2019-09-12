@@ -48,6 +48,7 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
 
         for _, ((images1, images2), labels, modalities) in enumerate(train_loader):
             # get data and info about this minibatch
+            labels = labels.to(device)
             concat_labels = torch.cat([labels, labels]).to(device)
             images1 = images1.float().to(device)
             images2 = images2.float().to(device)
