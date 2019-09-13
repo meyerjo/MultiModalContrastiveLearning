@@ -416,6 +416,45 @@
   * test_acc_glb_lin: 0.837
   * test_acc_glb_mlp_top_5: 0.988
   * test_acc_glb_lin_top_5: 0.986
+  
+
+## Self-Supervised training + Linear Classifier
+### RGB / jet-Depth 
+#### RGB
+* epoch 149
+* loss_inf: 4.758
+* loss_cls: 0.052
+* loss_g2l: 3.993
+* lgt_reg: 0.765
+* train_acc
+    * train_acc_glb_mlp: 0.996
+    * train_acc_glb_lin: 0.996
+* test_acc
+    * test_acc_glb_mlp: 0.934
+    * test_acc_glb_lin: 0.935
+    * test_acc_glb_mlp_top_5: 0.983
+    * test_acc_glb_lin_top_5: 0.982
+
+
+
+#### jet-Depth
+* epoch 149
+* loss_inf: 5.010
+* loss_cls: 0.093
+* loss_g2l: 4.248
+* lgt_reg: 0.762
+* train_acc
+    * train_acc_glb_mlp: 0.990
+    * train_acc_glb_lin: 0.991
+* test_acc
+    * test_acc_glb_mlp: 0.856
+    * test_acc_glb_lin: 0.853
+    * test_acc_glb_mlp_top_5: 0.969
+    * test_acc_glb_lin_top_5: 0.968
+
+
+#### 3x-Depth
+
 
 
 ## Timeline
