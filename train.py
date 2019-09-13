@@ -54,6 +54,10 @@ parser.add_argument('--modality_to_test', type=str, default='random', choices=['
 parser.add_argument('--baseline', action='store_true', default=False,
                     help='Indicates whether the whole model should be trained.'
                          'Needs to be combined with classifiers=True')
+
+parser.add_argument('--label_proportion', type=float, default=None,
+                    help='Give the label proportion')
+
 parser.add_argument('--epochs', type=int, default=None, help='Number of epochs')
 # ...
 args = parser.parse_args()
@@ -124,7 +128,8 @@ def main():
          device=torch_device,
          modality_to_test=args.modality_to_test,
          baseline_training=args.baseline,
-         overwrite_epochs=args.epochs
+         overwrite_epochs=args.epochs,
+         label_proportion=args.label_proportion
     )
 
 

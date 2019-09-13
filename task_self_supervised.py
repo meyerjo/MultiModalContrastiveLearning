@@ -18,7 +18,7 @@ CURRENT_TIME = lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
            train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test,
-           baseline_training=False):
+           baseline_training=False, label_proportion=None):
     '''
     Training loop for optimizing encoder
     '''
@@ -48,8 +48,15 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
 
         for _, ((images1, images2), labels, modalities) in enumerate(train_loader):
             # get data and info about this minibatch
+            label_ids = None
+            if label_proportion is not None:
+                number_of_labels = int(label_proportion * labels.size(0))
+                label_ids = torch.randperm(labels.size(0))
+                label_ids = label_ids[:number_of_labels]
+
             labels = labels.to(device)
             concat_labels = torch.cat([labels, labels]).to(device)
+
             images1 = images1.float().to(device)
             images2 = images2.float().to(device)
             # run forward pass through model to get global and local features
@@ -73,8 +80,16 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
                     (modality_to_test == 'rgb' or modality_to_test == 'depth'):
                 if _ == 0:
                     print('Using unconcatenated labels')
-                loss_cls = (loss_xent(lgt_glb_mlp, labels) +
-                            loss_xent(lgt_glb_lin, labels))
+                if label_ids is not None:
+                    if _ == 0:
+                        print('Using {} label proportion resulting in {} labels'.format(
+                            label_proportion, label_ids.size()
+                        ))
+                    loss_cls = (loss_xent(lgt_glb_mlp[label_ids], labels[label_ids]) +
+                                loss_xent(lgt_glb_lin[label_ids], labels[label_ids]))
+                else:
+                    loss_cls = (loss_xent(lgt_glb_mlp, labels) +
+                                loss_xent(lgt_glb_lin, labels))
             else:
                 loss_cls = (loss_xent(lgt_glb_mlp, concat_labels) +
                             loss_xent(lgt_glb_lin, concat_labels))
@@ -145,7 +160,8 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
 
 def train_self_supervised(model, learning_rate, dataset, train_loader,
                           test_loader, stat_tracker, checkpoint, log_dir, device,
-                          modality_to_test, baseline_training=False, overwrite_epochs=None):
+                          modality_to_test, baseline_training=False, overwrite_epochs=None,
+                          label_proportion=None):
     # configure optimizer
     mods_inf = [m for m in model.info_modules]
     mods_cls = [m for m in model.class_modules]
@@ -167,4 +183,4 @@ def train_self_supervised(model, learning_rate, dataset, train_loader,
     # train the model
     _train(model, optimizer, scheduler, checkpoint, epochs,
            train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test,
-           baseline_training)
+           baseline_training, label_proportion=label_proportion)

@@ -83,7 +83,8 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
 
 def train_classifiers(model, learning_rate, dataset, train_loader,
                       test_loader, stat_tracker, checkpoint, log_dir, device,
-                      modality_to_test, baseline_training=False, overwrite_epochs=None):
+                      modality_to_test, baseline_training=False, overwrite_epochs=None,
+                      label_proportion=None):
     # retrain the evaluation classifiers using the trained feature encoder
     for mod in model.class_modules:
         # reset params in the evaluation classifiers
