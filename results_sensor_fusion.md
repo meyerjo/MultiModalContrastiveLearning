@@ -454,7 +454,42 @@
 
 
 #### 3x-Depth
+* modality_to_test: depth, training_all: True
+* Using unconcatenated labels
+* Epoch 149
+* loss_inf: 4.683
+* loss_cls: 0.093
+* loss_g2l: 3.909
+* lgt_reg: 0.773
+* train_acc
+    * train_acc_glb_mlp: 0.991
+    * train_acc_glb_lin: 0.991
+* test_acc
+    * test_acc_glb_mlp: 0.857
+    * test_acc_glb_lin: 0.856
+    * test_acc_glb_mlp_top_5: 0.973
+    * test_acc_glb_lin_top_5: 0.972
 
+
+## Label proportion
+### RGB + jet-Depth
+#### Self-supervised
+modality_to_test: rgb, training_all: True
+Using unconcatenated labels
+Using 0.5 label proportion resulting in torch.Size([70]) labels
+* epoch 47
+* loss_inf: 6.426
+* loss_cls: 0.124
+* loss_g2l: 5.616
+* lgt_reg: 0.810
+* train_acc
+    * train_acc_glb_mlp: 0.982
+    * train_acc_glb_lin: 0.982
+* test_acc
+    * test_acc_glb_mlp: 0.933
+    * test_acc_glb_lin: 0.934
+    * test_acc_glb_mlp_top_5: 0.987
+    * test_acc_glb_lin_top_5: 0.989
 
 
 ## Timeline
