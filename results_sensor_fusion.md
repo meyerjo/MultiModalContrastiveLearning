@@ -420,6 +420,11 @@
 ---
 
 ## Self-Supervised training + Linear Classifier
+* We use the self-supervised metric loss and the classification loss together at the same time. Thus, information from one modality to the other should be transferred, the classifier be trained at the same time, and information from the classification can also be backpropagated to the network. 
+* the section define which pair of modalities is used RGB + (jet-Depth or 3xDepth)
+* the subsection indicates which modality was used to train the linear classifier.
+    * information loss 'sees' information from both modalities
+    * classification loss only 'sees' information from the target modality
 ### RGB / jet-Depth 
 #### RGB
 * epoch 149
@@ -469,6 +474,8 @@
     * test_acc_glb_lin_top_5: 0.972
 
 ## Label proportion
+* This is an ablation study of the experiments above. Everything mentioned above applies here as well.
+* The difference is that only a portion of the batch is labeled. For each mini-batch we sampled ```batch_size * label_proportion``` entries from it and only use those to train the linear classifier. 
 ### RGB + jet-Depth
 #### Self-supervised + Linear Classifier
 ##### 0.05 labels
@@ -490,6 +497,11 @@
     * test_acc_glb_lin: 0.048
     * test_acc_glb_mlp_top_5: 0.239
     * test_acc_glb_lin_top_5: 0.238
+    
+###### rgb
+* NOTE: Running at the moment
+    
+ 
 
 ##### 0.1 labels
 ###### jet-Depth
@@ -517,7 +529,7 @@
 * modality_to_test: depth, training_all: True
 * Using unconcatenated labels
 * Using 0.2 label proportion resulting in torch.Size([28]) labels
-* Epoch 149:
+* Epoch 149
 * loss_inf: 5.743
 * loss_cls: 0.318
 * loss_g2l: 4.952
@@ -530,8 +542,6 @@
     * test_acc_glb_lin: 0.853
     * test_acc_glb_mlp_top_5: 0.984
     * test_acc_glb_lin_top_5: 0.981
-
-
 
 ##### 0.5 labels
 ###### RGB
