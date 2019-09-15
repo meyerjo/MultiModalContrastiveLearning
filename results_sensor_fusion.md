@@ -499,12 +499,11 @@
     * test_acc_glb_lin_top_5: 0.238
     
 ###### rgb
-* NOTE: Running at the moment
-modality_to_test: rgb, training_all: True
-Using unconcatenated labels
-Using 0.05 label proportion resulting in torch.Size([7]) labels
-[2019-09-14 19:14:27] Epoch 149, 83 updates -- 1.2495 sec/update
-[2019-09-14 19:16:07] 149: loss_inf: 9.215
+* modality_to_test: rgb, training_all: True
+* Using unconcatenated labels
+* Using 0.05 label proportion resulting in torch.Size([7]) labels
+* epoch 149: 
+* loss_inf: 9.215
 * loss_cls: 0.288
 * loss_g2l: 8.412
 * lgt_reg: 0.803
@@ -518,8 +517,9 @@ Using 0.05 label proportion resulting in torch.Size([7]) labels
     * test_acc_glb_lin_top_5: 0.985
 
 
-Using 0.05 label proportion resulting in torch.Size([7]) labels
-[2019-09-15 14:50:16] 299: loss_inf: 7.215
+* Using 0.05 label proportion resulting in torch.Size([7]) labels
+* epoch 299: 
+* loss_inf: 7.215
 * loss_cls: 0.197
 * loss_g2l: 6.428
 * lgt_reg: 0.787
