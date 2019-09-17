@@ -570,6 +570,25 @@
 
 
 ##### 0.2 labels
+###### jet-Depth
+* modality_to_test: depth, training_all: True
+* Using unconcatenated labels
+* Using 0.2 label proportion resulting in torch.Size([28]) labels
+* epoch 148
+* loss_inf: 6.277
+* loss_cls: 0.370
+* loss_g2l: 5.501
+* lgt_reg: 0.777
+* train_acc
+    * train_acc_glb_mlp: 0.945
+    * train_acc_glb_lin: 0.947
+* test_acc
+    * test_acc_glb_mlp: 0.844
+    * test_acc_glb_lin: 0.845
+    * test_acc_glb_mlp_top_5: 0.983
+    * test_acc_glb_lin_top_5: 0.979
+
+
 ###### 3xDepth
 * modality_to_test: depth, training_all: True
 * Using unconcatenated labels
