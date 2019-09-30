@@ -66,6 +66,10 @@ parser.add_argument('--baseline', action='store_true', default=False,
                     help='Indicates whether the whole model should be trained.'
                          'Needs to be combined with classifiers=True')
 parser.add_argument('--epochs', type=int, default=None, help='Number of epochs')
+
+
+parser.add_argument('--label_proportion', type=float, default=None,
+                    help='Give the label proportion')
 # ...
 args = parser.parse_args()
 
@@ -227,14 +231,26 @@ def main():
 
     model, optimizer = mixed_precision.initialize(model, optimizer)
     model = model.to(torch_device)
+
+    # get data and info about this minibatch
+    label_proportion = args.label_proportion
+
+
     # ...
     for epoch in range(epochs):
 
         start_epoch = time.time()
         epoch_stats = AverageMeterSet()
         total_elements = 0
+        label_ids = None
         for _, ((images1, images2), labels, modalities) in enumerate(
                 train_loader):
+            # create subset
+            if label_proportion is not None:
+                number_of_labels = int(label_proportion * labels.size(0))
+                label_ids = torch.randperm(labels.size(0))
+                label_ids = label_ids[:number_of_labels]
+
             # get data and info about this minibatch
             images1 = images1.to(torch_device).cuda()
             images2 = images2.to(torch_device).cuda()
@@ -246,8 +262,28 @@ def main():
                 training_all=True
             )
             lgt_glb_mlp = res_dict['class']
+
+            # remove the labels according to the proportions
+            if (args.modality_to_test == 'rgb' or args.modality_to_test == 'depth'):
+                if _ == 0:
+                    print('Using unconcatenated labels')
+                if label_ids is not None:
+                    if _ == 0:
+                        print('Using {} label proportion resulting in {} labels'.format(
+                            label_proportion, label_ids.size()
+                        ))
+                    # loss = (ce_loss(lgt_glb_mlp[label_ids], labels[label_ids]) +
+                    #             ce_loss(lgt_glb_lin[label_ids], labels[label_ids]))
+                    loss = ce_loss(lgt_glb_mlp[label_ids], labels[label_ids])
+                else:
+                    # loss = (ce_loss(lgt_glb_mlp, labels) +
+                    #             ce_loss(lgt_glb_lin, labels))
+                    loss = ce_loss(lgt_glb_mlp, labels)
+            else:
+                raise BaseException('unknwon modlaity to test')
+
             # compute total loss for optimization
-            loss = ce_loss(lgt_glb_mlp, labels)
+            # loss = ce_loss(lgt_glb_mlp, labels)
             # do optimizer step for encoder
             optimizer.zero_grad()
             mixed_precision.backward(loss,
