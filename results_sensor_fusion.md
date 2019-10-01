@@ -28,6 +28,35 @@
 * test_acc
   * test_acc_glb_mlp: 0.784
   * test_acc_glb_mlp_top_5: 0.975
+  
+  
+### Single Modality - label proportion
+#### RGB
+* Modality: RGB
+* Using 0.2 label proportion resulting in torch.Size([28]) labels
+* epoch 149
+* loss: 0.241
+* train_acc
+	* train_acc_glb_mlp: 0.909
+* test_acc
+	* test_acc_glb_mlp: 0.850
+	* test_acc_glb_mlp_top_5: 0.974
+	
+#### 3xDepth
+* Modality: 3xDepth
+* Using unconcatenated labels
+* Using 0.2 label proportion resulting in torch.Size([28]) labels
+* epoch 149
+* loss: 2.495
+* train_acc
+	* train_acc_glb_mlp: 0.213
+* test_acc
+	* test_acc_glb_mlp: 0.048
+	* test_acc_glb_mlp_top_5: 0.239
+	
+#### jet-Depth
+* Running on hpcgpu7
+
 
 ---
 
