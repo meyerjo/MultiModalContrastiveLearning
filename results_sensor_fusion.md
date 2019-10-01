@@ -55,8 +55,16 @@
 	* test_acc_glb_mlp_top_5: 0.239
 	
 #### jet-Depth
-* Running on hpcgpu7
-
+* Modality: jet-Depth
+* Using unconcatenated labels
+* Using 0.2 label proportion resulting in torch.Size([28]) labels
+* epoch 149
+* loss: 2.366
+* train_acc
+	* train_acc_glb_mlp: 0.233
+* test_acc
+	* test_acc_glb_mlp: 0.048
+	* test_acc_glb_mlp_top_5: 0.240
 
 ---
 
