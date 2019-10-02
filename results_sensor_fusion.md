@@ -682,6 +682,58 @@
     * test_acc_glb_lin_top_5: 0.974
 
 
+## AMDIM + Label Proportion
+### RGB + jetDepth
+#### RGB
+modality_to_test: rgb, training_all: True
+Using unconcatenated labels
+Using 0.2 label proportion resulting in torch.Size([28]) labels
+[2019-10-02 02:17:12] Epoch 149, 83 updates -- 1.3371 sec/update
+[2019-10-02 02:18:56] 
+* epoch 149
+* loss_inf: 3.113
+* loss_cls: 0.131
+* loss_g2l: 2.552
+* lgt_reg: 0.561
+* train_acc_glb_mlp: 0.983
+* train_acc_glb_lin: 0.984
+* test_acc_glb_mlp: 0.933
+* test_acc_glb_lin: 0.932
+* test_acc_glb_mlp_top_5: 0.991
+* test_acc_glb_lin_top_5: 0.991
+
+#### jet-Depth
+[2019-10-02 01:48:51] Epoch 149, 83 updates -- 1.2716 sec/update
+* epoch 149: 
+* loss_inf: 4.215
+* loss_cls: 0.453
+* loss_g2l: 3.563
+* lgt_reg: 0.652
+* train_acc_glb_mlp: 0.930
+* train_acc_glb_lin: 0.932
+* test_acc_glb_mlp: 0.846
+* test_acc_glb_lin: 0.844
+* test_acc_glb_mlp_top_5: 0.987
+* test_acc_glb_lin_top_5: 0.986
+
+### RGB + 3xDepth
+#### 3xDepth
+modality_to_test: depth, training_all: True
+Using unconcatenated labels
+Using 0.2 label proportion resulting in torch.Size([28]) labels
+[2019-10-02 01:49:50] Epoch 149, 83 updates -- 1.2812 sec/update
+[2019-10-02 01:51:30] 
+* epoch 149: 
+* loss_inf: 4.371
+* loss_cls: 0.520
+* loss_g2l: 3.691
+* lgt_reg: 0.680
+* train_acc_glb_mlp: 0.920
+* train_acc_glb_lin: 0.922
+* test_acc_glb_mlp: 0.853
+* test_acc_glb_lin: 0.851
+* test_acc_glb_mlp_top_5: 0.988
+* test_acc_glb_lin_top_5: 0.987
 
 ## Timeline
 * [Johannes, 26. Aug 2019]: Check the performance drop from RGB to only Depth. Are only images from one modality used for the training of the linear classifier?
