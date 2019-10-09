@@ -90,6 +90,36 @@
     * test_acc_glb_lin: 0.647
     
 
+#### jet-Depth
+##### Self-supervised training
+* Epoch 99
+* loss_inf: 3.421
+* loss_cls: 1.752
+* loss_g2l: 2.832
+* lgt_reg: 0.589
+* train_acc
+    * train_acc_glb_mlp: 0.787
+    * train_acc_glb_lin: 0.672
+* test_acc
+    * test_acc_glb_mlp: 0.729
+    * test_acc_glb_lin: 0.646
+    * test_acc_glb_mlp_top_5: 0.972
+    * test_acc_glb_lin_top_5: 0.942
+
+##### Classifier
+* epoch 29:
+* loss: 1.719
+* train_acc
+    * train_acc_glb_mlp: 0.766
+    * train_acc_glb_lin: 0.693
+* test_acc
+    * test_acc_glb_mlp: 0.721
+    * test_acc_glb_lin: 0.664
+    * test_acc_glb_mlp_top_5: 0.970
+    * test_acc_glb_lin_top_5: 0.945
+
+    
+
 #### RGB - Padded images
 ##### Self-supervised training
 * epoch 99
@@ -685,11 +715,9 @@
 ## AMDIM + Label Proportion
 ### RGB + jetDepth
 #### RGB
-modality_to_test: rgb, training_all: True
-Using unconcatenated labels
-Using 0.2 label proportion resulting in torch.Size([28]) labels
-[2019-10-02 02:17:12] Epoch 149, 83 updates -- 1.3371 sec/update
-[2019-10-02 02:18:56] 
+* modality_to_test: rgb, training_all: True
+* Using unconcatenated labels
+* Using 0.2 label proportion resulting in torch.Size([28]) labels
 * epoch 149
 * loss_inf: 3.113
 * loss_cls: 0.131
