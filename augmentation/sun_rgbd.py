@@ -11,31 +11,27 @@ INTERP = 3
 
 
 NORMALIZATION_PARAMS = {
+
+# rgb mean  [125.9179271  116.55520094 110.44606892]
+# rgb std   [71.01960914 72.97451793 74.19717702]
     'RGB': {
-        'mean': [88.10391786 / 255., 77.88267129 / 255., 61.34734314 / 255.],
-        'std':  [45.8098147 / 255., 42.98117045 / 255., 39.68807149 / 255.]
+        'mean': [125.9179271 / 255., 116.55520094 / 255., 110.44606892 / 255.],
+        'std':  [71.01960914 / 255., 72.97451793 / 255., 74.19717702 / 255.]
     },
     'DEPTH': {
-        'mean': [91.09405015 / 255., 91.09405015 / 255., 91.09405015 / 255.],
-        'std':  [61.87289913 / 255., 61.87289913 / 255., 61.87289913 / 255.]
-    },
-    'JET-DEPTH': {
-        'mean': [66.41767038 / 255., 104.19884378 / 255., 165.15607047 / 255.],
-        'std':  [80.38406076 / 255., 88.75743179 / 255., 85.48735799 / 255.]
+        'mean': [15057.647471352906, 15057.647471352906, 15057.647471352906],
+        'std':  [10687.017732125727, 10687.017732125727, 10687.017732125727]
     },
 }
 
-
-class TransformsFallingThings128(object):
+class Transforms_Sun_RGBD(object):
     '''
-    TransformsFallingThings128 dataset, for use with 128x128 full image encoder.
+    Transforms_Sun_RGBD dataset, for use with 128x128 full image encoder.
     '''
-
     def custom_flip(self, inputs):
         if random.random() > .5:
             inputs = [TF.hflip(img) for img in inputs]
         return inputs
-
 
     def __init__(self, modality=None, normalizer_mod1=None, normalizer_mod2=None):
         """

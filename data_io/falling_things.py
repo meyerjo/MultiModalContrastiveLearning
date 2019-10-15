@@ -11,7 +11,7 @@ class Falling_Things_Dataset(VisionDataset):
 
     def __init__(self, root, train=True,
                  transform=None, target_transform=None,
-                 download=False, file_filter_regex=None):
+                 download=False, file_filter_regex=None, label_proportion=None):
 
         super(Falling_Things_Dataset, self).__init__(root)
         self.transform = transform

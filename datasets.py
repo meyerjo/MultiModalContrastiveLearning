@@ -7,9 +7,12 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 
-from augmentation.falling_things import TransformsFallingThings128, \
-    NORMALIZATION_PARAMS
+from augmentation import falling_things
+from augmentation import sun_rgbd
+from augmentation.falling_things import TransformsFallingThings128
+from augmentation.sun_rgbd import Transforms_Sun_RGBD
 from data_io.falling_things import Falling_Things_Dataset
+from data_io.sun_rgbd import Sun_RGBD_Dataset
 
 INTERP = 3
 
@@ -23,6 +26,7 @@ class Dataset(Enum):
     FALLINGTHINGS = 6
     FALLINGTHINGS_RGB_D = 6
     FALLINGTHINGS_RGB_DJET = 7
+    SUN_RGBD = 8
 
 
 def get_encoder_size(dataset):
@@ -35,6 +39,8 @@ def get_encoder_size(dataset):
     if dataset == Dataset.FALLINGTHINGS:
         return 128
     if dataset == Dataset.FALLINGTHINGS_RGB_DJET:
+        return 128
+    if dataset == Dataset.SUN_RGBD:
         return 128
     raise RuntimeError("Couldn't get encoder size, unknown dataset: {}".format(dataset))
 
@@ -270,8 +276,8 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         num_classes = 21
         train_transform = TransformsFallingThings128(
             modality=modality,
-            normalizer_mod1=NORMALIZATION_PARAMS['RGB'],
-            normalizer_mod2=NORMALIZATION_PARAMS['DEPTH']
+            normalizer_mod1=falling_things.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=falling_things.NORMALIZATION_PARAMS['DEPTH']
         )
         test_transform = train_transform.test_transform
 
@@ -294,8 +300,8 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         num_classes = 21
         train_transform = TransformsFallingThings128(
             modality=modality,
-            normalizer_mod1=NORMALIZATION_PARAMS['RGB'],
-            normalizer_mod2=NORMALIZATION_PARAMS['JET-DEPTH']
+            normalizer_mod1=falling_things.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=falling_things.NORMALIZATION_PARAMS['JET-DEPTH']
         )
         test_transform = train_transform.test_transform
 
@@ -313,6 +319,23 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         test_dataset = Falling_Things_Dataset(
             root=val_dir, train=False, transform=test_transform,
             file_filter_regex=file_regex
+        )
+    elif dataset == Dataset.SUN_RGBD:
+        num_classes = 45
+        print('Using the falling things transformer. Have to adjust'
+              'normalizers')
+        train_transform = Transforms_Sun_RGBD(
+            modality=modality,
+            normalizer_mod1=sun_rgbd.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=sun_rgbd.NORMALIZATION_PARAMS['DEPTH']
+        )
+        test_transform = train_transform.test_transform
+
+        train_dataset = Sun_RGBD_Dataset(
+            root=train_dir, train=True, transform=train_transform,
+        )
+        test_dataset = Sun_RGBD_Dataset(
+            root=val_dir, train=False, transform=test_transform,
         )
 
     # build pytorch dataloaders for the datasets
@@ -349,6 +372,9 @@ def _get_directories(dataset, input_dir):
             dataset == Dataset.FALLINGTHINGS_RGB_D:
         train_dir = os.path.join(input_dir, 'train')
         val_dir = os.path.join(input_dir, 'val')
+    elif dataset == Dataset.SUN_RGBD:
+        train_dir = input_dir
+        val_dir = input_dir
     else:
         raise 'Data directories for dataset ' + dataset + ' are not defined'
     return train_dir, val_dir
