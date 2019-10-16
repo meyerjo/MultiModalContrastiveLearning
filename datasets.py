@@ -322,8 +322,6 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         )
     elif dataset == Dataset.SUN_RGBD:
         num_classes = 45
-        print('Using the falling things transformer. Have to adjust'
-              'normalizers')
         train_transform = Transforms_Sun_RGBD(
             modality=modality,
             normalizer_mod1=sun_rgbd.NORMALIZATION_PARAMS['RGB'],
