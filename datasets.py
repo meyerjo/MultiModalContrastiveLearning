@@ -330,10 +330,12 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         test_transform = train_transform.test_transform
 
         train_dataset = Sun_RGBD_Dataset(
-            root=train_dir, train=True, transform=train_transform,
+            root=train_dir, train=True,
+            transform=train_transform, modality=modality
         )
         test_dataset = Sun_RGBD_Dataset(
-            root=val_dir, train=False, transform=test_transform,
+            root=val_dir, train=False,
+            transform=test_transform, modality=modality
         )
 
     # build pytorch dataloaders for the datasets

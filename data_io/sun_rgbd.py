@@ -11,7 +11,7 @@ class Sun_RGBD_Dataset(VisionDataset):
 
     def __init__(self, root, train=True,
                  transform=None, target_transform=None,
-                 download=False, file_filter_regex=None):
+                 download=False, modality=None):
 
         super(Sun_RGBD_Dataset, self).__init__(root)
         self.transform = transform
@@ -47,6 +47,10 @@ class Sun_RGBD_Dataset(VisionDataset):
                 print('({}/{}) files processed'.format(
                     i, len(fold_files)
                 ))
+
+            if i > 1000:
+                print('Breaking after 1000')
+                break
 
             img_folder = os.path.join(root, img_folder)
             _scene_type_filename = os.path.join(img_folder, 'scene.txt')
@@ -106,6 +110,10 @@ class Sun_RGBD_Dataset(VisionDataset):
                     'depth'
                 ]
             }
+            if modality == 'rgb':
+                entry = {'data': [rgb_data], 'modality': ['rgb']}
+            elif modality == 'depth':
+                entry = {'data': [depth_data], 'modality': ['depth']}
 
             # add the data to the list
             self.data.append(entry)
