@@ -47,10 +47,10 @@ class Sun_RGBD_Dataset(VisionDataset):
                 print('({}/{}) files processed'.format(
                     i, len(fold_files)
                 ))
-
-            if i > 1000:
-                print('Breaking after 1000')
-                break
+            #
+            # if i > 1000:
+            #     print('Breaking after 1000')
+            #     break
 
             img_folder = os.path.join(root, img_folder)
             _scene_type_filename = os.path.join(img_folder, 'scene.txt')
