@@ -23,6 +23,18 @@ NORMALIZATION_PARAMS = {
         'std':  [81.95557457 / 255., 81.95557457 / 255., 81.95557457 / 255.]
     },
 }
+# TEST distribution is the following
+# mean_rgb
+# Out[3]: array([126.01805254, 119.00382699, 112.006402  ])
+# std_rgb = np.std(concat_elements, axis=0)
+# std_rgb
+# Out[5]: array([71.10925615, 73.17516656, 74.65919546])
+
+# mean_rgb
+# Out[5]: array([102.83441545])
+# std_rgb
+# Out[6]: array([81.72894529])
+
 
 class Transforms_Sun_RGBD(object):
     '''
