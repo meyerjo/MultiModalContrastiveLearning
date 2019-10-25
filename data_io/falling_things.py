@@ -24,7 +24,7 @@ class Falling_Things_Dataset(VisionDataset):
 
         print('Collecting classes...')
         # TODO:  These need to be replace by the actual files in the root dir
-        classes_in_root = [f for f in os.listdir(root)]
+        classes_in_root = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
         print('Collecting all specific files...')
         files_list = []
         for c in classes_in_root:
@@ -68,11 +68,38 @@ class Falling_Things_Dataset(VisionDataset):
 
         print('Found the following modalities: {}'.format(
             sorted(list(set(modality_list_flat)))))
+
+        # check if label_proportion file is already available
+        random_keys, file_handle = None, None
+        if self.train and label_proportion is not None:
+            dataset = 'fallingthings'
+            label_prop_filename = os.path.join(
+                root, 'label_prop_{0}_{1:.4f}.txt'.format(
+                    dataset, label_proportion))
+            # TODO: make this check more intelligent, verify whether actual files are written
+            if not os.path.exists(label_prop_filename):
+                number_of_samples = int(np.ceil(label_proportion * len(files_dict.keys())))
+                # randomly permutate the keys
+                random_ids = np.random.permutation(
+                    np.arange(0, len(files_dict.keys()) )
+                )
+                if number_of_samples > 0:
+                    print('Selecting {} samples from {} total. Writing label_proportion file for {:.03f}'.format(
+                        number_of_samples, len(random_ids), label_proportion
+                    ))
+                    random_ids = random_ids[:number_of_samples]
+                    random_keys = np.array(list(files_dict.keys()))[random_ids]
+                    with open(label_prop_filename, 'w') as file_handle:
+                        file_handle.writelines(random_keys)
+            else:
+                with open(label_prop_filename, 'r') as f:
+                    random_keys = f.readlines()
+
         print('Loading the data...')
         self.data = []
         self.targets = []
+        self.drop_label_while_training = []
         self.classes = set()
-
         # TODO: how to handle different image sizes
         # now load the picked numpy arrays
         for key, entries in files_dict.items():
@@ -102,9 +129,14 @@ class Falling_Things_Dataset(VisionDataset):
                 entry['modality'] += [entries['modalities'][i]]
 
             assert(len(entry['modality']) <= 2)
-            self.data.append(entry)
+            if random_keys is not None:
+                self.drop_label_while_training.append(
+                    key in random_keys
+                )
 
+            self.data.append(entry)
             self.targets.append(entries['class'])
+            # add the class to the set of classes
             self.classes.add(entries['class'])
         self.classes = list(self.classes)
 
@@ -140,6 +172,9 @@ class Falling_Things_Dataset(VisionDataset):
 
         if self.target_transform is not None:
             target = self.target_transform(target)
+
+        if self.train and self.drop_label_while_training[index]:
+            target = None
 
         if len(image_per_modality) == 1:
             if isinstance(pil_images, tuple):

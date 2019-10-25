@@ -213,7 +213,7 @@ class TransformsImageNet128:
         return out1, out2
 
 
-def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modality=None):
+def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modality=None, label_proportion=None):
 
     train_dir, val_dir = _get_directories(dataset, input_dir)
 
@@ -290,7 +290,7 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
 
         train_dataset = Falling_Things_Dataset(
             root=train_dir, train=True, transform=train_transform,
-            file_filter_regex=file_regex
+            file_filter_regex=file_regex, label_proportion=label_proportion
         )
         test_dataset = Falling_Things_Dataset(
             root=val_dir, train=False, transform=test_transform,
@@ -314,7 +314,7 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
 
         train_dataset = Falling_Things_Dataset(
             root=train_dir, train=True, transform=train_transform,
-            file_filter_regex=file_regex
+            file_filter_regex=file_regex, label_proportion=label_proportion
         )
         test_dataset = Falling_Things_Dataset(
             root=val_dir, train=False, transform=test_transform,

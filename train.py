@@ -104,7 +104,8 @@ def main():
                       batch_size=args.batch_size,
                       input_dir=args.input_dir,
                       labeled_only=args.classifiers,
-                      modality=args.modality)
+                      modality=args.modality,
+                      label_proportion=args.label_proportion)
 
     torch_device = torch.device('cuda')
     # create new model with random parameters
