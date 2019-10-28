@@ -23,7 +23,7 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
     Training loop for optimizing encoder
     '''
     # make sure that we are not in baseline training mode
-    if not baseline_training:
+    if baseline_training:
         print('Baseline Training is activated')
 
     # If mixed precision is on, will add the necessary hooks into the model
@@ -49,10 +49,12 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
         for _, ((images1, images2), labels, modalities) in enumerate(train_loader):
             # get data and info about this minibatch
             label_ids = None
+            # if label_proportion is not None we expect that some labels in
+            # the batch are != -1. Thus, we provide labels for those during
+            # training. We retrieve the label_ids of these to filter them
+            # from the labels tensor
             if label_proportion is not None:
-                number_of_labels = int(label_proportion * labels.size(0))
-                label_ids = torch.randperm(labels.size(0))
-                label_ids = label_ids[:number_of_labels]
+                label_ids = torch.where(labels != -1)[0]
 
             labels = labels.to(device)
             concat_labels = torch.cat([labels, labels]).to(device)
@@ -85,8 +87,12 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
                         print('Using {} label proportion resulting in {} labels'.format(
                             label_proportion, label_ids.size()
                         ))
-                    loss_cls = (loss_xent(lgt_glb_mlp[label_ids], labels[label_ids]) +
-                                loss_xent(lgt_glb_lin[label_ids], labels[label_ids]))
+                    if label_ids.size()[0] != 0:
+                        loss_cls = (loss_xent(lgt_glb_mlp[label_ids], labels[label_ids]) +
+                                    loss_xent(lgt_glb_lin[label_ids], labels[label_ids]))
+                    else:
+                        print('label_ids.size() == 0', label_ids, label_ids.size())
+                        loss_cls = torch.tensor(0.)
                 else:
                     loss_cls = (loss_xent(lgt_glb_mlp, labels) +
                                 loss_xent(lgt_glb_lin, labels))

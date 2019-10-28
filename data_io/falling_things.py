@@ -19,6 +19,10 @@ class Falling_Things_Dataset(VisionDataset):
 
         self.train = train  # training set or test set
 
+        if not self.train and label_proportion is not None:
+            print('self.train = False and label_proportion is not None.'
+                  'Make sure that this is the desired behavior')
+
         if download:
             raise NotImplementedError('has not been implemented')
 
@@ -88,12 +92,14 @@ class Falling_Things_Dataset(VisionDataset):
                         number_of_samples, len(random_ids), label_proportion
                     ))
                     random_ids = random_ids[:number_of_samples]
-                    random_keys = np.array(list(files_dict.keys()))[random_ids]
+                    random_keys = np.array(list(files_dict.keys()))[random_ids].tolist()
                     with open(label_prop_filename, 'w') as file_handle:
-                        file_handle.writelines(random_keys)
+                        for t in random_keys:
+                            file_handle.write(t + '\n')
             else:
                 with open(label_prop_filename, 'r') as f:
                     random_keys = f.readlines()
+                random_keys = [re.search('^(.+)\n$', f).group(1) for f in random_keys]
 
         print('Loading the data...')
         self.data = []
@@ -173,8 +179,14 @@ class Falling_Things_Dataset(VisionDataset):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        if self.train and self.drop_label_while_training[index]:
-            target = None
+        # we are in the training mode and have information regarding
+        # label dropping
+        if self.train and len(self.drop_label_while_training) > 0:
+            # TODO: reverse the variable
+            # We set the target varaible to -1 if the file is not indexed
+            # as a file from which we want to keep the label information
+            if not self.drop_label_while_training[index]:
+                target = -1
 
         if len(image_per_modality) == 1:
             if isinstance(pil_images, tuple):

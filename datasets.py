@@ -321,6 +321,7 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
             file_filter_regex=file_regex
         )
     elif dataset == Dataset.SUN_RGBD:
+        assert(label_proportion is None)
         num_classes = 45
         train_transform = Transforms_Sun_RGBD(
             modality=modality,
