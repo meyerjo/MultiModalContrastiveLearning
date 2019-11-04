@@ -44,6 +44,8 @@ def get_encoder_size(dataset):
         return 128
     if dataset == Dataset.SUN_RGBD:
         return 128
+    if dataset == Dataset.WASHINGTON:
+        return 128
     raise RuntimeError("Couldn't get encoder size, unknown dataset: {}".format(dataset))
 
 
@@ -342,8 +344,8 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         )
     elif dataset == Dataset.WASHINGTON:
         assert(label_proportion is None)
-        print('Updated classes/transforms')
-        num_classes = 45
+        print('Update transforms')
+        num_classes = 51
         train_transform = Transforms_Sun_RGBD(
             modality=modality,
             normalizer_mod1=sun_rgbd.NORMALIZATION_PARAMS['RGB'],

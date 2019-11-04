@@ -61,7 +61,7 @@ class Washington_RGBD_Dataset(VisionDataset):
 
     def _group_files_by_stem(self, files):
         regex_filestem = re.compile(
-            r'^([a-z]+_\d+_\d+_\d+_)(([a-z]+)\.(txt|png))$'
+            r'^([a-z_]*_\d+_\d+_\d+_)(([a-z]+)\.(txt|png))$'
         )
         _dict_group_files = {}
         for f in files:
@@ -78,9 +78,12 @@ class Washington_RGBD_Dataset(VisionDataset):
 
             _dict_group_files[filestem][filetype] = f
 
-        number_files = set([len(item.keys()) for key, item in _dict_group_files.items()])
-        if len(number_files) != 1:
-            raise BaseException('Number of files != 1')
+        number_dict_keys = [len(item.keys()) for key, item in _dict_group_files.items()]
+        number_files = set(number_dict_keys)
+
+        # TODO: verify that his is not required
+        # if len(number_files) != 1:
+        #     raise BaseException('Number of files != 1')
         return _dict_group_files
 
 
@@ -147,44 +150,66 @@ class Washington_RGBD_Dataset(VisionDataset):
         group_files = self.read_all_files(_ds_path)
         # removed the files from
         for _class, _items in group_files.items():
+            _tmp_seq_keys = {}
             _seq_keys = group_files[_class].keys()
             for _seq in _seq_keys:
                 if self.train:
                     # in this case we want to remove the test instances
-                    if _seq in test_instances:
-                        del group_files[_class][_seq]
+                    if _seq not in test_instances:
+                        _tmp_seq_keys[_seq] = group_files[_class][_seq]
                 else:
                     # in this case we want to keep the test instances
-                    if _seq not in test_instances:
-                        del group_files[_class][_seq]
+                    if _seq in test_instances:
+                        _tmp_seq_keys[_seq] = group_files[_class][_seq]
+            group_files[_class] = _tmp_seq_keys
 
         self.classes = list(group_files.keys())
 
         for _c, _sequences in group_files.items():
-            for _seq, data_path in _sequences.items():
-                _rgb_path = data_path['crop']
-                _depth_path = data_path['depthcrop']
-                _mask_path = data_path['maskcrop']
+            for _seq, filestems in _sequences.items():
+                for _stem, data_path in filestems.items():
+                    _rgb_path = data_path.get('crop', None)
+                    _depth_path = data_path.get('depthcrop', None)
+                    _mask_path = data_path.get('maskcrop', None)
+                    if _rgb_path is None:
+                        continue
+                    if _depth_path is None:
+                        continue
+                    if _mask_path is None:
+                        continue
 
-                self.data.append(
-                    {
-                        'data': [
-                            Image.open(os.path.join(_ds_path, _c, _seq, _rgb_path)),
-                            Image.open(os.path.join(_ds_path, _c, _seq, _depth_path)),
-                            # Image.open(os.path.join(_ds_path, _c, _seq, _mask_path)),
-                        ],
-                        'modality': [
-                            'rgb',
-                            'depth',
-                            # 'mask'
-                        ]
-                    }
-                )
-                self.targets.append(_c)
+                    _full_rgb_path = os.path.join(_ds_path, _c, _seq, _rgb_path)
+                    _full_d_path = os.path.join(_ds_path, _c, _seq, _depth_path)
+
+                    rgb_im = np.array(Image.open(_full_rgb_path))
+
+                    depth_im = np.array(Image.open(_full_d_path))
+                    depth_im = np.expand_dims(depth_im, axis=0)
+                    depth_im = np.repeat(depth_im, repeats=3, axis=0)
+                    #
+                    # # TODO: take modality into account
+                    if modality == 'rgb':
+                        entry = {
+                            'data': [rgb_im], 'modality': ['rgb']
+                        }
+                    elif modality == 'depth' or modality == 'd':
+                        entry = {
+                            'data': [depth_im], 'modality': ['depth']
+                        }
+                    else:
+                        entry = {
+                            'data': [rgb_im, depth_im],
+                            'modality': ['rgb', 'depth']
+                        }
+
+                    self.data.append(entry)
+                    self.targets.append(_c)
 
         # convert the overall classes to a list
         self.classes = list(self.classes)
         self.class_to_idx = {_class: i for i, _class in enumerate(self.classes)}
+        print('Loaded {} datapoints with {} labels (total: #{})'.format(
+            len(self.data), len(self.targets), len(self.classes)))
 
     def __len__(self):
         return len(self.data)
