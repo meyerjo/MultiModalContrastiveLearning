@@ -184,8 +184,9 @@ class Washington_RGBD_Dataset(VisionDataset):
                     rgb_im = np.array(Image.open(_full_rgb_path))
 
                     depth_im = np.array(Image.open(_full_d_path))
-                    depth_im = np.expand_dims(depth_im, axis=0)
-                    depth_im = np.repeat(depth_im, repeats=3, axis=0)
+                    depth_im = np.expand_dims(depth_im, axis=-1)
+                    depth_im = np.repeat(depth_im, repeats=3, axis=-1)
+                    depth_im = depth_im.astype(np.uint8)
                     #
                     # # TODO: take modality into account
                     if modality == 'rgb':
@@ -204,6 +205,10 @@ class Washington_RGBD_Dataset(VisionDataset):
 
                     self.data.append(entry)
                     self.targets.append(_c)
+
+                    if len(self.data) > 200:
+                        print("REMOVE THIS DATA LOADER IS STOPPED AFTER 1000 ELEMENTS")
+                        break
 
         # convert the overall classes to a list
         self.classes = list(self.classes)
