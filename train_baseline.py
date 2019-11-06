@@ -188,7 +188,8 @@ def main():
                       batch_size=args.batch_size,
                       input_dir=args.input_dir,
                       labeled_only=args.classifiers,
-                      modality=args.modality)
+                      modality=args.modality,
+                      label_proportion=args.label_proportion)
 
     torch_device = torch.device('cuda')
     # create new model with random parameters
@@ -247,9 +248,7 @@ def main():
                 train_loader):
             # create subset
             if label_proportion is not None:
-                number_of_labels = int(label_proportion * labels.size(0))
-                label_ids = torch.randperm(labels.size(0))
-                label_ids = label_ids[:number_of_labels]
+                label_ids = torch.where(labels != -1)[0]
 
             # get data and info about this minibatch
             images1 = images1.to(torch_device).cuda()
