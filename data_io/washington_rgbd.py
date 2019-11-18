@@ -7,6 +7,9 @@ from PIL import Image
 from torchvision.datasets import VisionDataset
 import re
 
+from data_io.utils import scaleit3
+
+
 class Washington_RGBD_Dataset(VisionDataset):
 
     def read_test_instance_ids(self, filename):
@@ -206,6 +209,8 @@ class Washington_RGBD_Dataset(VisionDataset):
                     self.data.append(entry)
                     self.targets.append(_c)
 
+                    # TODO: check the size of the images
+
                     # if len(self.data) > 200:
                     #     print("REMOVE THIS DATA LOADER IS STOPPED AFTER 1000 ELEMENTS")
                     #     break
@@ -236,6 +241,7 @@ class Washington_RGBD_Dataset(VisionDataset):
         # to return a PIL Image
         pil_images = []
         for im in image_per_modality:
+            im = scaleit3(im)
             pil_im = Image.fromarray(im)
             pil_images.append(pil_im)
 
