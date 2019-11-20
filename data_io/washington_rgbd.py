@@ -170,6 +170,12 @@ class Washington_RGBD_Dataset(VisionDataset):
 
         for _c, _sequences in group_files.items():
             for _seq, filestems in _sequences.items():
+                _filtered_stems = list(filestems.keys())[::5]
+                _filestems = dict()
+                for _stem in _filtered_stems:
+                    _filestems[_stem] = filestems[_stem]
+                filestems = _filestems
+
                 for _stem, data_path in filestems.items():
                     _rgb_path = data_path.get('crop', None)
                     _depth_path = data_path.get('depthcrop', None)
