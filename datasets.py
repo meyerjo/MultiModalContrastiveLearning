@@ -7,10 +7,11 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 
-from augmentation import falling_things
+from augmentation import falling_things, washington_rgbd
 from augmentation import sun_rgbd
 from augmentation.falling_things import TransformsFallingThings128
 from augmentation.sun_rgbd import Transforms_Sun_RGBD
+from augmentation.washington_rgbd import Transforms_Washington_RGBD
 from data_io.falling_things import Falling_Things_Dataset
 from data_io.sun_rgbd import Sun_RGBD_Dataset
 from data_io.washington_rgbd import Washington_RGBD_Dataset
@@ -344,12 +345,11 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         )
     elif dataset == Dataset.WASHINGTON:
         assert(label_proportion is None)
-        print('Update transforms')
         num_classes = 51
-        train_transform = Transforms_Sun_RGBD(
+        train_transform = Transforms_Washington_RGBD(
             modality=modality,
-            normalizer_mod1=sun_rgbd.NORMALIZATION_PARAMS['RGB'],
-            normalizer_mod2=sun_rgbd.NORMALIZATION_PARAMS['DEPTH']
+            normalizer_mod1=washington_rgbd.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=washington_rgbd.NORMALIZATION_PARAMS['DEPTH']
         )
         test_transform = train_transform.test_transform
 

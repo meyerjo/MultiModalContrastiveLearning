@@ -215,12 +215,6 @@ class Washington_RGBD_Dataset(VisionDataset):
                     self.data.append(entry)
                     self.targets.append(_c)
 
-                    # TODO: check the size of the images
-
-                    # if len(self.data) > 200:
-                    #     print("REMOVE THIS DATA LOADER IS STOPPED AFTER 1000 ELEMENTS")
-                    #     break
-
         # convert the overall classes to a list
         self.classes = list(self.classes)
         self.class_to_idx = {_class: i for i, _class in enumerate(self.classes)}
