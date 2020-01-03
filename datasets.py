@@ -13,6 +13,7 @@ from augmentation.falling_things import TransformsFallingThings128
 from augmentation.sun_rgbd import Transforms_Sun_RGBD
 from augmentation.washington_rgbd import Transforms_Washington_RGBD
 from data_io.falling_things import Falling_Things_Dataset
+from data_io.nyu_rgbd import NYU_RGBD_Dataset
 from data_io.sun_rgbd import Sun_RGBD_Dataset
 from data_io.washington_rgbd import Washington_RGBD_Dataset
 
@@ -30,6 +31,7 @@ class Dataset(Enum):
     FALLINGTHINGS_RGB_DJET = 7
     SUN_RGBD = 8
     WASHINGTON = 9
+    NYU_RGBD = 10
 
 
 def get_encoder_size(dataset):
@@ -46,6 +48,8 @@ def get_encoder_size(dataset):
     if dataset == Dataset.SUN_RGBD:
         return 128
     if dataset == Dataset.WASHINGTON:
+        return 128
+    if dataset == Dataset.NYU_RGBD:
         return 128
     raise RuntimeError("Couldn't get encoder size, unknown dataset: {}".format(dataset))
 
@@ -361,6 +365,25 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
             root=val_dir, train=False,
             transform=test_transform, modality=modality
         )
+    elif dataset == Dataset.NYU_RGBD:
+        assert(label_proportion is None)
+        print('train_transform has to be adopted to the new dataset')
+        num_classes = 894
+        train_transform = Transforms_Washington_RGBD(
+            modality=modality,
+            normalizer_mod1=washington_rgbd.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=washington_rgbd.NORMALIZATION_PARAMS['DEPTH']
+        )
+        test_transform = train_transform.test_transform
+
+        train_dataset = NYU_RGBD_Dataset(
+            root=train_dir, train=True,
+            transform=train_transform, modality=modality
+        )
+        test_dataset = NYU_RGBD_Dataset(
+            root=val_dir, train=False,
+            transform=test_transform, modality=modality
+        )
 
     # build pytorch dataloaders for the datasets
     train_loader = \
@@ -400,6 +423,9 @@ def _get_directories(dataset, input_dir):
         train_dir = input_dir
         val_dir = input_dir
     elif dataset == Dataset.WASHINGTON:
+        train_dir = input_dir
+        val_dir = input_dir
+    elif dataset == Dataset.NYU_RGBD:
         train_dir = input_dir
         val_dir = input_dir
     else:
