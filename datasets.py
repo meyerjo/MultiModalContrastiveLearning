@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 
-from augmentation import falling_things, washington_rgbd
+from augmentation import falling_things, washington_rgbd, nyu_rgbd
 from augmentation import sun_rgbd
 from augmentation.falling_things import TransformsFallingThings128
 from augmentation.sun_rgbd import Transforms_Sun_RGBD
@@ -373,8 +373,8 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
 
         train_transform = Transforms_NYU_RGBD(
             modality=modality,
-            normalizer_mod1=washington_rgbd.NORMALIZATION_PARAMS['RGB'],
-            normalizer_mod2=washington_rgbd.NORMALIZATION_PARAMS['DEPTH']
+            normalizer_mod1=nyu_rgbd.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=nyu_rgbd.NORMALIZATION_PARAMS['DEPTH']
         )
         test_transform = train_transform.test_transform
 
