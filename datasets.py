@@ -12,6 +12,7 @@ from augmentation import sun_rgbd
 from augmentation.falling_things import TransformsFallingThings128
 from augmentation.sun_rgbd import Transforms_Sun_RGBD
 from augmentation.washington_rgbd import Transforms_Washington_RGBD
+from augmentation.nyu_rgbd import Transforms_NYU_RGBD
 from data_io.falling_things import Falling_Things_Dataset
 from data_io.nyu_rgbd import NYU_RGBD_Dataset
 from data_io.sun_rgbd import Sun_RGBD_Dataset
@@ -369,7 +370,8 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         assert(label_proportion is None)
         print('train_transform has to be adopted to the new dataset')
         num_classes = 894
-        train_transform = Transforms_Washington_RGBD(
+
+        train_transform = Transforms_NYU_RGBD(
             modality=modality,
             normalizer_mod1=washington_rgbd.NORMALIZATION_PARAMS['RGB'],
             normalizer_mod2=washington_rgbd.NORMALIZATION_PARAMS['DEPTH']
