@@ -167,8 +167,8 @@ class NYU_RGBD_Dataset(VisionDataset):
 
         for _class_dir in class_dirs:
             files_in_modalities = []
-            for modality in modalities:
-                _full_path = os.path.join(data_dir, modality, _class_dir)
+            for _mod in modalities:
+                _full_path = os.path.join(data_dir, _mod, _class_dir)
                 files_in_modalities.append(os.listdir(_full_path))
             chained_files_per_modality = list(itertools.chain(*files_in_modalities))
             set_modality_files = set(chained_files_per_modality)
