@@ -6,6 +6,7 @@ from torchvision import transforms
 from augmentation.utils import MultipleInputsToTensor, AddFirstDimension, \
     ResizeMultiple, CenterCropMultiple, MultipleInputsNormalize, \
     RandomResizedCropMultiple
+from augmentation.rand_augment import RandAugmentMultipleModalities
 
 INTERP = 3
 
@@ -118,6 +119,9 @@ class Transforms_Washington_RGBD(object):
                 RandomResizedCropMultiple(
                     128, scale=(0.3, 1.0), ratio=(0.7, 1.4), interpolation=INTERP)
 
+            rand_augment_multiple_modalities = \
+                RandAugmentMultipleModalities(3, 4, 0)
+
             post_transform_multiple = transforms.Compose([
                 MultipleInputsToTensor(),
                 # TODO: check the normalization values
@@ -135,8 +139,11 @@ class Transforms_Washington_RGBD(object):
                 ResizeMultiple(146, interpolation=INTERP),
                 CenterCropMultiple(128), post_transform_multiple
             ])
+            # TODO: add enabler
             self.train_transform = transforms.Compose([
-                rand_crop_multiple, post_transform_multiple
+                rand_crop_multiple,
+                rand_augment_multiple_modalities,
+                post_transform_multiple
             ])
 
         else:
