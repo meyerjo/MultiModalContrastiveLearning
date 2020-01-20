@@ -6,7 +6,7 @@ from torchvision import transforms
 from augmentation.utils import MultipleInputsToTensor, AddFirstDimension, \
     ResizeMultiple, CenterCropMultiple, MultipleInputsNormalize, \
     RandomResizedCropMultiple
-from augmentation.rand_augment import RandAugmentMultipleModalities
+from augmentation.rand_augment import RandAugmentMultipleModalities, RandAugment
 
 INTERP = 3
 
@@ -84,6 +84,8 @@ class Transforms_Washington_RGBD(object):
                 transforms.RandomResizedCrop(128, scale=(0.3, 1.0), ratio=(0.7, 1.4),
                                              interpolation=INTERP)
 
+            rand_augmentation = RandAugment(3, 4)
+
             post_transform_steps = [transforms.ToTensor()]
             if modality == 'rgb':
                 post_transform_steps += [
@@ -105,6 +107,7 @@ class Transforms_Washington_RGBD(object):
                 rand_crop,
                 # col_jitter,
                 # rnd_gray,
+                rand_augmentation,
                 post_transform
             ])
             self.test_transform = transforms.Compose([
