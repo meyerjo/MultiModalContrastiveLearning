@@ -369,7 +369,7 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
     elif dataset == Dataset.NYU_RGBD:
         assert(label_proportion is None)
         print('train_transform has to be adopted to the new dataset')
-        num_classes = 894
+        num_classes = 19
 
         train_transform = Transforms_NYU_RGBD(
             modality=modality,

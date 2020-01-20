@@ -126,6 +126,13 @@ class NYU_RGBD_Dataset(VisionDataset):
         self.target_transform = target_transform
         self.train = train  # training set or test set
 
+        self.valid_classes = [
+            'bathtub', 'bed', 'bookshelf', 'box', 'chair',
+            'counter', 'desk', 'door', 'dresser', 'garbage bin', 'lamp',
+            'monitor', 'night stand', 'pillow', 'sink', 'sofa', 'table',
+            'television', 'toilet'
+        ]
+
         assert(os.path.exists(os.path.join(root, 'classes.json')))
 
         with open(os.path.join(root, 'classes.json')) as f:
@@ -166,6 +173,10 @@ class NYU_RGBD_Dataset(VisionDataset):
                 'Download NYU RGB-D')
 
         for _class_dir in class_dirs:
+            # restrict it to 19 classes
+            if _class_dir not in self.valid_classes:
+                continue
+
             files_in_modalities = []
             for _mod in modalities:
                 _full_path = os.path.join(data_dir, _mod, _class_dir)
