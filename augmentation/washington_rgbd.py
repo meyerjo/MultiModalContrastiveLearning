@@ -106,12 +106,14 @@ class Transforms_Washington_RGBD(object):
 
             # create the modality customized
             if modality == 'rgb':
+                print('Add transforms specific with RGB')
                 self.train_transform = transforms.Compose([
                     rand_crop,
                     rand_augmentation,
                     post_transform
                 ])
             elif modality == 'd' or modality == 'depth':
+                print('Add transforms specific with Depth')
                 self.train_transform = transforms.Compose([
                     rand_crop,
                     speckle_noise,
