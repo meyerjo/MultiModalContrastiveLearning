@@ -216,7 +216,8 @@ class NYU_RGBD_Dataset(VisionDataset):
                 self.targets.append(_class_dir)
 
         # convert the overall classes to a list
-        _class_hist = {_c: np.sum(np.equal(self.targets, _c)) for _c in self.valid_classes}
+        _histc, _bins = np.histogram(self.targets, sorted(self.valid_classes))
+        _class_hist = dict(zip(_bins, _histc))
         print('[{}]: Class_hist: {}'.format(
             'Train' if self.train else 'Test', _class_hist
         ))
