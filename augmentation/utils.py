@@ -1,6 +1,20 @@
 import torchvision.transforms.functional as TF
 from torchvision import transforms
 
+import numpy as np
+
+class SpeckleNoise(object):
+
+    def __init__(self, noise_mu=1, noise_variance=10e-1):
+        self.mu = noise_mu
+        self.std = np.sqrt(noise_variance)
+
+    def __call__(self, input):
+        arr = np.asarray(input)
+        mult_noise = np.random.normal(self.mu, self.std, arr.shape[0:2])
+        return np.multiply(arr, np.repeat(np.expand_dims(mult_noise, -1), 3, axis=-1))
+
+
 class ResizeMultiple(transforms.Resize):
     def __call__(self, input):
         return [TF.resize(inp, self.size, self.interpolation) for inp in input]

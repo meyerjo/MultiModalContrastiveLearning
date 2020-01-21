@@ -5,7 +5,7 @@ from torchvision import transforms
 
 from augmentation.utils import MultipleInputsToTensor, AddFirstDimension, \
     ResizeMultiple, CenterCropMultiple, MultipleInputsNormalize, \
-    RandomResizedCropMultiple
+    RandomResizedCropMultiple, SpeckleNoise
 from augmentation.rand_augment import RandAugmentMultipleModalities, RandAugment
 
 INTERP = 3
@@ -86,6 +86,8 @@ class Transforms_Washington_RGBD(object):
 
             rand_augmentation = RandAugment(3, 4)
 
+            speckle_noise = SpeckleNoise(1, 10e-1)
+
             post_transform_steps = [transforms.ToTensor()]
             if modality == 'rgb':
                 post_transform_steps += [
@@ -102,14 +104,20 @@ class Transforms_Washington_RGBD(object):
 
             post_transform = transforms.Compose(post_transform_steps)
 
+            # create the modality customized
+            if modality == 'rgb':
+                self.train_transform = transforms.Compose([
+                    rand_crop,
+                    rand_augmentation,
+                    post_transform
+                ])
+            elif modality == 'd' or modality == 'depth':
+                self.train_transform = transforms.Compose([
+                    rand_crop,
+                    speckle_noise,
+                    post_transform
+                ])
 
-            self.train_transform = transforms.Compose([
-                rand_crop,
-                # col_jitter,
-                # rnd_gray,
-                rand_augmentation,
-                post_transform
-            ])
             self.test_transform = transforms.Compose([
                 transforms.Resize(146, interpolation=INTERP),
                 transforms.CenterCrop(128),
