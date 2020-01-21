@@ -216,7 +216,7 @@ class NYU_RGBD_Dataset(VisionDataset):
                 self.targets.append(_class_dir)
 
         # convert the overall classes to a list
-        self.classes = list(self.classes)
+        self.classes = list(self.valid_classes)
         self.class_to_idx = {_class: i for i, _class in enumerate(self.classes)}
         print('Loaded {} datapoints with {} labels (total: #{})'.format(
             len(self.data), len(self.targets), len(self.classes)))
