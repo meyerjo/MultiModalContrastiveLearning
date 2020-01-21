@@ -217,7 +217,9 @@ class NYU_RGBD_Dataset(VisionDataset):
 
         # convert the overall classes to a list
         _class_hist = {_c: np.sum(np.equal(self.targets, _c)) for _c in self.valid_classes}
-        print('Class_hist: ', _class_hist)
+        print('[{}]: Class_hist: {}'.format(
+            'Train' if self.train else 'Test', _class_hist
+        ))
         self.classes = list(self.valid_classes)
         self.class_to_idx = {_class: i for i, _class in enumerate(self.classes)}
         print('Loaded {} datapoints with {} labels (total: #{})'.format(
