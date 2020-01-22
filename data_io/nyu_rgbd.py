@@ -128,8 +128,8 @@ class NYU_RGBD_Dataset(VisionDataset):
 
         self.valid_classes = [
             'bathtub', 'bed', 'bookshelf', 'box', 'chair',
-            'counter', 'desk', 'door', 'dresser', 'garbage bin', 'lamp',
-            'monitor', 'night stand', 'pillow', 'sink', 'sofa', 'table',
+            'counter', 'desk', 'door', 'dresser', 'garbage-bin', 'lamp',
+            'monitor', 'night-stand', 'pillow', 'sink', 'sofa', 'table',
             'television', 'toilet'
         ]
 
