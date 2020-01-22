@@ -3,6 +3,7 @@ import random
 import torchvision.transforms.functional as TF
 from torchvision import transforms
 
+from augmentation import rand_augment
 from augmentation.utils import MultipleInputsToTensor, AddFirstDimension, \
     ResizeMultiple, CenterCropMultiple, MultipleInputsNormalize, \
     RandomResizedCropMultiple, SpeckleNoise
@@ -134,6 +135,8 @@ class Transforms_Washington_RGBD(object):
 
             rand_augment_multiple_modalities = \
                 RandAugmentMultipleModalities(3, 4, 0)
+            rand_augment_multiple_modalities_depth = \
+                RandAugmentMultipleModalities(3, 4, 1, rand_augment.augment_list_depth())
 
             post_transform_multiple = transforms.Compose([
                 MultipleInputsToTensor(),
@@ -156,6 +159,7 @@ class Transforms_Washington_RGBD(object):
             self.train_transform = transforms.Compose([
                 rand_crop_multiple,
                 rand_augment_multiple_modalities,
+                rand_augment_multiple_modalities_depth,
                 post_transform_multiple
             ])
 
