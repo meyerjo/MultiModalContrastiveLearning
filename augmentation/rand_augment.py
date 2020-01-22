@@ -202,6 +202,47 @@ def augment_list():  # 16 oeprations and their ranges
     return l
 
 
+def augment_list_depth():  # 16 oeprations and their ranges
+    # https://github.com/google-research/uda/blob/master/image/randaugment/policies.py#L57
+    # l = [
+    #     (Identity, 0., 1.0),
+    #     (ShearX, 0., 0.3),  # 0
+    #     (ShearY, 0., 0.3),  # 1
+    #     (TranslateX, 0., 0.33),  # 2
+    #     (TranslateY, 0., 0.33),  # 3
+    #     (Rotate, 0, 30),  # 4
+    #     (AutoContrast, 0, 1),  # 5
+    #     (Invert, 0, 1),  # 6
+    #     (Equalize, 0, 1),  # 7
+    #     (Solarize, 0, 110),  # 8
+    #     (Posterize, 4, 8),  # 9
+    #     # (Contrast, 0.1, 1.9),  # 10
+    #     (Color, 0.1, 1.9),  # 11
+    #     (Brightness, 0.1, 1.9),  # 12
+    #     (Sharpness, 0.1, 1.9),  # 13
+    #     # (Cutout, 0, 0.2),  # 14
+    #     # (SamplePairing(imgs), 0, 0.4),  # 15
+    # ]
+
+    # https://github.com/tensorflow/tpu/blob/8462d083dd89489a79e3200bcc8d4063bf362186/models/official/efficientnet/autoaugment.py#L505
+    l = [
+        (AutoContrast, 0, 1),
+        (Equalize, 0, 1),
+        (Invert, 0, 1),
+        (Rotate, 0, 30),
+        (Contrast, 0.1, 1.9),
+        (Brightness, 0.1, 1.9),
+        (Sharpness, 0.1, 1.9),
+        (ShearX, 0., 0.3),
+        (ShearY, 0., 0.3),
+        (CutoutAbs, 0, 40),
+        (TranslateXabs, 0., 100),
+        (TranslateYabs, 0., 100),
+    ]
+
+    return l
+
+
 class Lighting(object):
     """Lighting noise(AlexNet - style PCA - based noise)"""
 
@@ -249,10 +290,13 @@ class CutoutDefault(object):
 
 
 class RandAugment(object):
-    def __init__(self, n, m):
+    def __init__(self, n, m, func_list=None):
         self.n = n
         self.m = m      # [0, 30]
-        self.augment_list = augment_list()
+        if func_list is None:
+            self.augment_list = augment_list()
+        else:
+            self.augment_list = func_list
 
     def __call__(self, img):
         ops = random.choices(self.augment_list, k=self.n)
@@ -264,9 +308,14 @@ class RandAugment(object):
 
 
 class RandAugmentMultipleModalities(object):
-    def __init__(self, n, m, modality_id=0):
-        self.rand_augment = RandAugment(n, m)
+    def __init__(self, n, m, modality_id=0, modality=None):
         self.modality = modality_id
+        if modality is None:
+            self.rand_augment = RandAugment(n, m)
+        elif modality == 'rgb':
+            self.rand_augment = RandAugment(n, m)
+        elif modality == 'depth':
+            self.rand_augment = RandAugment(n, m, augment_list_depth())
 
 
     def __call__(self, inputs):
