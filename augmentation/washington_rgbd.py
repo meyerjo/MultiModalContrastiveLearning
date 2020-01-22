@@ -86,6 +86,7 @@ class Transforms_Washington_RGBD(object):
                                              interpolation=INTERP)
 
             rand_augmentation = RandAugment(3, 4)
+            rand_augmentation_depth = RandAugment(3, 4, rand_augment.augment_list_depth())
 
             speckle_noise = SpeckleNoise(1, 10e-1)
 
@@ -117,7 +118,7 @@ class Transforms_Washington_RGBD(object):
                 print('Add transforms specific with Depth')
                 self.train_transform = transforms.Compose([
                     rand_crop,
-                    speckle_noise,
+                    rand_augmentation_depth,
                     post_transform
                 ])
 
