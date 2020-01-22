@@ -316,6 +316,8 @@ class RandAugmentMultipleModalities(object):
             self.rand_augment = RandAugment(n, m)
         elif modality == 'depth':
             self.rand_augment = RandAugment(n, m, augment_list_depth())
+        else:
+            raise BaseException('Unknown modality input {}'.format(modality))
 
 
     def __call__(self, inputs):
