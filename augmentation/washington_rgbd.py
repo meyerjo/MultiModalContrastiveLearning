@@ -137,7 +137,7 @@ class Transforms_Washington_RGBD(object):
             rand_augment_multiple_modalities = \
                 RandAugmentMultipleModalities(3, 4, 0)
             rand_augment_multiple_modalities_depth = \
-                RandAugmentMultipleModalities(3, 4, 1, rand_augment.augment_list_depth())
+                RandAugmentMultipleModalities(3, 4, 1, 'depth')
 
             post_transform_multiple = transforms.Compose([
                 MultipleInputsToTensor(),
