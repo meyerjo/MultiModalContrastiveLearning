@@ -3,6 +3,8 @@ import random
 import torchvision.transforms.functional as TF
 from torchvision import transforms
 
+from augmentation import rand_augment
+from augmentation.rand_augment import RandAugment, RandAugmentMultipleModalities
 from augmentation.utils import MultipleInputsToTensor, AddFirstDimension, \
     ResizeMultiple, CenterCropMultiple, MultipleInputsNormalize, \
     RandomResizedCropMultiple
@@ -109,13 +111,24 @@ class Transforms_NYU_RGBD(object):
 
             post_transform = transforms.Compose(post_transform_steps)
 
+            rand_augmentation = RandAugment(3, 4)
+            rand_augmentation_depth = RandAugment(2, 4, rand_augment.augment_list_depth())
 
-            self.train_transform = transforms.Compose([
-                rand_crop,
-                # col_jitter,
-                # rnd_gray,
-                post_transform
-            ])
+            if modality == 'rgb':
+                self.train_transform = transforms.Compose([
+                    rand_crop,
+                    rand_augmentation,
+                    post_transform
+                ])
+            elif modality == 'depth' or modality == 'd':
+                self.train_transform = transforms.Compose([
+                    rand_crop,
+                    rand_augmentation_depth,
+                    post_transform
+                ])
+            else:
+                raise BaseException('Unknown modality')
+
             self.test_transform = transforms.Compose([
                 transforms.Resize(146, interpolation=INTERP),
                 transforms.CenterCrop(128),
@@ -127,6 +140,11 @@ class Transforms_NYU_RGBD(object):
             rand_crop_multiple = \
                 RandomResizedCropMultiple(
                     128, scale=(0.3, 1.0), ratio=(0.7, 1.4), interpolation=INTERP)
+
+            rand_augment_multiple_modalities = \
+                RandAugmentMultipleModalities(3, 4, 0)
+            rand_augment_multiple_modalities_depth = \
+                RandAugmentMultipleModalities(3, 4, 1, 'depth')
 
             post_transform_multiple = transforms.Compose([
                 MultipleInputsToTensor(),
@@ -146,7 +164,10 @@ class Transforms_NYU_RGBD(object):
                 CenterCropMultiple(128), post_transform_multiple
             ])
             self.train_transform = transforms.Compose([
-                rand_crop_multiple, post_transform_multiple
+                rand_crop_multiple,
+                rand_augment_multiple_modalities,
+                rand_augment_multiple_modalities_depth,
+                post_transform_multiple
             ])
 
         else:
