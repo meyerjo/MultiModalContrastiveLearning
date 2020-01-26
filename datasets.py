@@ -223,7 +223,9 @@ class TransformsImageNet128:
         return out1, out2
 
 
-def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modality=None, label_proportion=None):
+def build_dataset(dataset, batch_size, input_dir=None,
+                  labeled_only=False, modality=None, label_proportion=None,
+                  use_randaugment=True):
 
     train_dir, val_dir = _get_directories(dataset, input_dir)
 
@@ -373,7 +375,8 @@ def build_dataset(dataset, batch_size, input_dir=None, labeled_only=False, modal
         train_transform = Transforms_NYU_RGBD(
             modality=modality,
             normalizer_mod1=nyu_rgbd.NORMALIZATION_PARAMS['RGB'],
-            normalizer_mod2=nyu_rgbd.NORMALIZATION_PARAMS['DEPTH']
+            normalizer_mod2=nyu_rgbd.NORMALIZATION_PARAMS['DEPTH'],
+            use_randaugment=use_randaugment
         )
         test_transform = train_transform.test_transform
 

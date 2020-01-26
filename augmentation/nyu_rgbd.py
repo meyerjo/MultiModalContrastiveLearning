@@ -57,7 +57,7 @@ class Transforms_NYU_RGBD(object):
             inputs = [TF.hflip(img) for img in inputs]
         return inputs
 
-    def __init__(self, modality=None, normalizer_mod1=None, normalizer_mod2=None):
+    def __init__(self, modality=None, normalizer_mod1=None, normalizer_mod2=None, use_randaugment=True):
         """
 
         :param modality: Modality
@@ -114,17 +114,25 @@ class Transforms_NYU_RGBD(object):
             rand_augmentation = RandAugment(3, 4)
             rand_augmentation_depth = RandAugment(2, 4, rand_augment.augment_list_depth())
 
-            if modality == 'rgb':
+            if modality == 'rgb' and use_randaugment:
+                print('Using rand augmentation...')
                 self.train_transform = transforms.Compose([
-                    rand_crop,
-                    rand_augmentation,
-                    post_transform
+                    rand_crop, rand_augmentation, post_transform
+                ])
+            elif modality == 'rgb':
+                print('Not using rand augmentation...')
+                self.train_transform = transforms.Compose([
+                    rand_crop, post_transform
+                ])
+            elif (modality == 'depth' or modality == 'd') and use_randaugment:
+                print('Using rand augmentation...')
+                self.train_transform = transforms.Compose([
+                    rand_crop, rand_augmentation_depth, post_transform
                 ])
             elif modality == 'depth' or modality == 'd':
+                print('Not using rand augmentation...')
                 self.train_transform = transforms.Compose([
-                    rand_crop,
-                    rand_augmentation_depth,
-                    post_transform
+                    rand_crop, post_transform
                 ])
             else:
                 raise BaseException('Unknown modality')
@@ -163,12 +171,18 @@ class Transforms_NYU_RGBD(object):
                 ResizeMultiple(146, interpolation=INTERP),
                 CenterCropMultiple(128), post_transform_multiple
             ])
-            self.train_transform = transforms.Compose([
-                rand_crop_multiple,
-                rand_augment_multiple_modalities,
-                rand_augment_multiple_modalities_depth,
-                post_transform_multiple
-            ])
+            if use_randaugment:
+                self.train_transform = transforms.Compose([
+                    rand_crop_multiple,
+                    rand_augment_multiple_modalities,
+                    rand_augment_multiple_modalities_depth,
+                    post_transform_multiple
+                ])
+            else:
+                self.train_transform = transforms.Compose([
+                    rand_crop_multiple,
+                    post_transform_multiple
+                ])
 
         else:
             raise BaseException('Modality unknown')

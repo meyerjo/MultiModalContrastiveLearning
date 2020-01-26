@@ -58,6 +58,9 @@ parser.add_argument('--baseline', action='store_true', default=False,
 parser.add_argument('--label_proportion', type=float, default=None,
                     help='Give the label proportion')
 
+parser.add_argument('--use_randaugment', action='store_true', default=False,
+                    help='Use rand augmentation')
+
 parser.add_argument('--epochs', type=int, default=None, help='Number of epochs')
 # ...
 args = parser.parse_args()
@@ -105,7 +108,8 @@ def main():
                       input_dir=args.input_dir,
                       labeled_only=args.classifiers,
                       modality=args.modality,
-                      label_proportion=args.label_proportion)
+                      label_proportion=args.label_proportion,
+                      use_randaugment=args.use_randaugment)
 
     torch_device = torch.device('cuda')
     # create new model with random parameters
