@@ -86,7 +86,7 @@ class Transforms_Washington_RGBD(object):
                                              interpolation=INTERP)
 
             rand_augmentation = RandAugment(3, 4)
-            rand_augmentation_depth = RandAugment(3, 4, rand_augment.augment_list_depth())
+            rand_augmentation_depth = RandAugment(2, 4, rand_augment.augment_list_depth())
 
             speckle_noise = SpeckleNoise(1, 10e-1)
 
