@@ -455,7 +455,7 @@ def _get_directories(dataset, input_dir):
     elif dataset == Dataset.WASHINGTON:
         train_dir = input_dir
         val_dir = input_dir
-    elif dataset == Dataset.NYU_RGBD:
+    elif dataset == Dataset.NYU_RGBD or dataset == Dataset.NYU_RGBD_ABLATION:
         train_dir = input_dir
         val_dir = input_dir
     else:
