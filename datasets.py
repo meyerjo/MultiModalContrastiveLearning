@@ -10,6 +10,7 @@ from torchvision import datasets, transforms
 from augmentation import falling_things, washington_rgbd, nyu_rgbd
 from augmentation import sun_rgbd
 from augmentation.falling_things import TransformsFallingThings128
+from augmentation.nyu_rgbd_ablation import Transforms_NYU_RGBD_Ablation
 from augmentation.sun_rgbd import Transforms_Sun_RGBD
 from augmentation.washington_rgbd import Transforms_Washington_RGBD
 from augmentation.nyu_rgbd import Transforms_NYU_RGBD
@@ -33,6 +34,7 @@ class Dataset(Enum):
     SUN_RGBD = 8
     WASHINGTON = 9
     NYU_RGBD = 10
+    NYU_RGBD_ABLATION = 11
 
 
 def get_encoder_size(dataset):
@@ -225,7 +227,7 @@ class TransformsImageNet128:
 
 def build_dataset(dataset, batch_size, input_dir=None,
                   labeled_only=False, modality=None, label_proportion=None,
-                  use_randaugment=True):
+                  use_randaugment=True, selected_randaugment=None):
 
     train_dir, val_dir = _get_directories(dataset, input_dir)
 
@@ -234,6 +236,8 @@ def build_dataset(dataset, batch_size, input_dir=None,
         raise BaseException('train_dir or val_dir not exists: {}, {}'.format(
             train_dir, val_dir
         ))
+    if selected_randaugment is not None:
+        assert dataset == Dataset.NYU_RGBD_ABLATION, 'dataset has to be NYU_RGB/D'
 
     if dataset == Dataset.C10:
         num_classes = 10
@@ -378,6 +382,27 @@ def build_dataset(dataset, batch_size, input_dir=None,
             normalizer_mod1=nyu_rgbd.NORMALIZATION_PARAMS['RGB'],
             normalizer_mod2=nyu_rgbd.NORMALIZATION_PARAMS['DEPTH'],
             use_randaugment=use_randaugment
+        )
+        test_transform = train_transform.test_transform
+
+        train_dataset = NYU_RGBD_Dataset(
+            root=train_dir, train=True,
+            transform=train_transform, modality=modality
+        )
+        test_dataset = NYU_RGBD_Dataset(
+            root=val_dir, train=False,
+            transform=test_transform, modality=modality
+        )
+    elif dataset == Dataset.NYU_RGBD_ABLATION:
+        assert label_proportion is None, 'label_proportion not implemented'
+        num_classes = 19
+
+        train_transform = Transforms_NYU_RGBD_Ablation(
+            modality=modality,
+            normalizer_mod1=nyu_rgbd.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=nyu_rgbd.NORMALIZATION_PARAMS['DEPTH'],
+            use_randaugment=use_randaugment,
+            randaugment=selected_randaugment
         )
         test_transform = train_transform.test_transform
 

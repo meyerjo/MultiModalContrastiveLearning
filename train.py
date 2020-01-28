@@ -4,6 +4,7 @@ import argparse
 import torch
 
 import mixed_precision
+from augmentation.rand_augment import augmentation_dicts_depth
 from stats import StatTracker
 from datasets import Dataset, build_dataset, get_dataset, get_encoder_size
 from model import Model
@@ -60,6 +61,7 @@ parser.add_argument('--label_proportion', type=float, default=None,
 
 parser.add_argument('--use_randaugment', action='store_true', default=False,
                     help='Use rand augmentation')
+parser.add_argument('--selected_randaugment', type=str, default=None)
 
 parser.add_argument('--epochs', type=int, default=None, help='Number of epochs')
 # ...
@@ -101,6 +103,10 @@ def main():
     log_dir = os.path.join(args.output_dir, args.run_name)
     stat_tracker = StatTracker(log_dir=log_dir)
 
+    assert(args.selected_randaugment is None or
+           args.selected_randaugment in list(augmentation_dicts_depth().keys()))
+
+
     # get dataloaders for training and testing
     train_loader, test_loader, num_classes = \
         build_dataset(dataset=dataset,
@@ -109,7 +115,8 @@ def main():
                       labeled_only=args.classifiers,
                       modality=args.modality,
                       label_proportion=args.label_proportion,
-                      use_randaugment=args.use_randaugment)
+                      use_randaugment=args.use_randaugment,
+                      selected_randaugment=args.selected_randaugment)
 
     torch_device = torch.device('cuda')
     # create new model with random parameters

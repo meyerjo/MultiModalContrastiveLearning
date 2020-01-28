@@ -52,7 +52,7 @@ class Transforms_NYU_RGBD_Ablation(object):
         :param modality: Modality
         """
         print('This is the ablation function!!')
-        assert(randaugment is not None)
+        assert randaugment is not None, 'rand augment has to be selected'
         # make sure if one is specified both are specified just to avoid confusion
         if (normalizer_mod1 is None and normalizer_mod2 is not None) or \
                 (normalizer_mod1 is not None and normalizer_mod2 is None):
