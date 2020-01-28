@@ -47,7 +47,7 @@ class Transforms_Washington_RGBD(object):
             inputs = [TF.hflip(img) for img in inputs]
         return inputs
 
-    def __init__(self, modality=None, normalizer_mod1=None, normalizer_mod2=None):
+    def __init__(self, modality=None, normalizer_mod1=None, normalizer_mod2=None, use_randaugment=False):
         """
 
         :param modality: Modality
@@ -109,18 +109,30 @@ class Transforms_Washington_RGBD(object):
             # create the modality customized
             if modality == 'rgb':
                 print('Add transforms specific with RGB')
-                self.train_transform = transforms.Compose([
-                    rand_crop,
-                    rand_augmentation,
-                    post_transform
-                ])
+                if use_randaugment:
+                    print('...Using rand augment')
+                    self.train_transform = transforms.Compose([
+                        rand_crop,
+                        rand_augmentation,
+                        post_transform
+                    ])
+                else:
+                    print('...disregarding rand augment')
+                    self.train_transform = transforms.Compose([
+                        rand_crop, post_transform
+                    ])
+
             elif modality == 'd' or modality == 'depth':
                 print('Add transforms specific with Depth')
-                self.train_transform = transforms.Compose([
-                    rand_crop,
-                    rand_augmentation_depth,
-                    post_transform
-                ])
+                if use_randaugment:
+                    print('...using rand augment')
+                    self.train_transform = transforms.Compose([
+                        rand_crop,
+                        rand_augmentation_depth, post_transform])
+                else:
+                    print('...disregarding rand augment')
+                    self.train_transform = transforms.Compose([
+                        rand_crop, post_transform])
 
             self.test_transform = transforms.Compose([
                 transforms.Resize(146, interpolation=INTERP),
@@ -157,12 +169,18 @@ class Transforms_Washington_RGBD(object):
                 CenterCropMultiple(128), post_transform_multiple
             ])
             # TODO: add enabler
-            self.train_transform = transforms.Compose([
-                rand_crop_multiple,
-                rand_augment_multiple_modalities,
-                rand_augment_multiple_modalities_depth,
-                post_transform_multiple
-            ])
+            if use_randaugment:
+                print('.. using rand augmentation')
+                self.train_transform = transforms.Compose([
+                    rand_crop_multiple,
+                    rand_augment_multiple_modalities,
+                    rand_augment_multiple_modalities_depth,
+                    post_transform_multiple
+                ])
+            else:
+                print('.. disregarding rand augmentation')
+                self.train_transform = transforms.Compose([
+                    rand_crop_multiple, post_transform_multiple])
 
         else:
             raise BaseException('Modality unknown')

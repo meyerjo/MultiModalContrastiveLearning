@@ -356,7 +356,8 @@ def build_dataset(dataset, batch_size, input_dir=None,
         train_transform = Transforms_Washington_RGBD(
             modality=modality,
             normalizer_mod1=washington_rgbd.NORMALIZATION_PARAMS['RGB'],
-            normalizer_mod2=washington_rgbd.NORMALIZATION_PARAMS['DEPTH']
+            normalizer_mod2=washington_rgbd.NORMALIZATION_PARAMS['DEPTH'],
+            use_randaugment=use_randaugment
         )
         test_transform = train_transform.test_transform
 
