@@ -201,6 +201,23 @@ def augment_list():  # 16 oeprations and their ranges
 
     return l
 
+def augmentation_dicts_depth():
+    return {
+        'autocontrast': (AutoContrast, 0, 1),
+        'equalize': (Equalize, 0, 1),
+        'invert': (Invert, 0, 1),
+        'rotate': (Rotate, 0, 30),
+        'contrast': (Contrast, 0.1, 1.9),
+        'brightness': (Brightness, 0.1, 1.9),
+        'sharpness': (Sharpness, 0.1, 1.9),
+        'shearx': (ShearX, 0., 0.3),
+        'sheary': (ShearY, 0., 0.3),
+        'cutoutabs': (CutoutAbs, 0, 40),
+        'translatexabs': (TranslateXabs, 0., 100),
+        'translateyabs': (TranslateYabs, 0., 100),
+    }
+
+
 
 def augment_list_depth():  # 16 oeprations and their ranges
     # https://github.com/google-research/uda/blob/master/image/randaugment/policies.py#L57
@@ -301,6 +318,31 @@ class RandAugment(object):
     def __call__(self, img):
         ops = random.choices(self.augment_list, k=self.n)
         for op, minval, maxval in ops:
+            val = (float(self.m) / 30) * float(maxval - minval) + minval
+            img = op(img, val)
+
+        return img
+
+
+class RandAugmentDictDepth(object):
+    def __init__(self, n, m, func_list=None, augmentation=None):
+        self.n = n
+        self.m = m      # [0, 30]
+        self.selected_augmentation = augmentation
+        self.augmentations = augmentation_dicts_depth()
+        if func_list is None:
+            self.augment_list = augment_list()
+        else:
+            self.augment_list = func_list
+
+    def __call__(self, img):
+        if self.selected_augmentation is not None:
+            ops = random.choices(self.augment_list, k=self.n)
+            for op, minval, maxval in ops:
+                val = (float(self.m) / 30) * float(maxval - minval) + minval
+                img = op(img, val)
+        else:
+            op, minval, maxval = self.augmentations[self.selected_augmentation]
             val = (float(self.m) / 30) * float(maxval - minval) + minval
             img = op(img, val)
 
