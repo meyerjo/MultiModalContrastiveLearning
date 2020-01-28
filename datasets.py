@@ -52,7 +52,7 @@ def get_encoder_size(dataset):
         return 128
     if dataset == Dataset.WASHINGTON:
         return 128
-    if dataset == Dataset.NYU_RGBD:
+    if dataset == Dataset.NYU_RGBD or dataset == Dataset.NYU_RGBD_ABLATION:
         return 128
     raise RuntimeError("Couldn't get encoder size, unknown dataset: {}".format(dataset))
 
