@@ -206,13 +206,13 @@ def augmentation_dicts_depth():
         'autocontrast': (AutoContrast, 0, 1),
         'equalize': (Equalize, 0, 1),
         'invert': (Invert, 0, 1),
-        'rotate': (Rotate, 0, 30),
+        'rotate': (Rotate, 0, 30), #done
         'contrast': (Contrast, 0.1, 1.9),
         'brightness': (Brightness, 0.1, 1.9),
         'sharpness': (Sharpness, 0.1, 1.9),
         'shearx': (ShearX, 0., 0.3),
         'sheary': (ShearY, 0., 0.3),
-        'cutoutabs': (CutoutAbs, 0, 40),
+        'cutoutabs': (CutoutAbs, 0, 40), #done
         'translatexabs': (TranslateXabs, 0., 100),
         'translateyabs': (TranslateYabs, 0., 100),
     }
@@ -336,7 +336,7 @@ class RandAugmentDictDepth(object):
             self.augment_list = func_list
 
     def __call__(self, img):
-        if self.selected_augmentation is not None:
+        if self.selected_augmentation is None:
             ops = random.choices(self.augment_list, k=self.n)
             for op, minval, maxval in ops:
                 val = (float(self.m) / 30) * float(maxval - minval) + minval
