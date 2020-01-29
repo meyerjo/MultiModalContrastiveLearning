@@ -206,13 +206,13 @@ def augmentation_dicts_depth():
         'autocontrast': (AutoContrast, 0, 1),
         'equalize': (Equalize, 0, 1),
         'invert': (Invert, 0, 1),
-        'rotate': (Rotate, 0, 30), #done
+        'rotate': (Rotate, 0, 30),
         'contrast': (Contrast, 0.1, 1.9),
         'brightness': (Brightness, 0.1, 1.9),
         'sharpness': (Sharpness, 0.1, 1.9),
         'shearx': (ShearX, 0., 0.3),
         'sheary': (ShearY, 0., 0.3),
-        'cutoutabs': (CutoutAbs, 0, 40), #done
+        'cutoutabs': (CutoutAbs, 0, 40),
         'translatexabs': (TranslateXabs, 0., 100),
         'translateyabs': (TranslateYabs, 0., 100),
     }
@@ -241,20 +241,29 @@ def augment_list_depth():  # 16 oeprations and their ranges
     #     # (SamplePairing(imgs), 0, 0.4),  # 15
     # ]
 
+    # # https://github.com/tensorflow/tpu/blob/8462d083dd89489a79e3200bcc8d4063bf362186/models/official/efficientnet/autoaugment.py#L505
+    # l = [
+    #     # (AutoContrast, 0, 1),
+    #     # (Equalize, 0, 1),
+    #     # (Invert, 0, 1),
+    #     (Rotate, 0, 30),
+    #     # (Contrast, 0.1, 1.9),
+    #     # (Brightness, 0.1, 1.9),
+    #     # (Sharpness, 0.1, 1.9),
+    #     # (ShearX, 0., 0.3),
+    #     # (ShearY, 0., 0.3),
+    #     (CutoutAbs, 0, 40),
+    #     (TranslateXabs, 0., 100),
+    #     (TranslateYabs, 0., 100),
+    # ]
     # https://github.com/tensorflow/tpu/blob/8462d083dd89489a79e3200bcc8d4063bf362186/models/official/efficientnet/autoaugment.py#L505
     l = [
-        # (AutoContrast, 0, 1),
-        # (Equalize, 0, 1),
-        # (Invert, 0, 1),
         (Rotate, 0, 30),
-        # (Contrast, 0.1, 1.9),
-        # (Brightness, 0.1, 1.9),
-        # (Sharpness, 0.1, 1.9),
-        # (ShearX, 0., 0.3),
-        # (ShearY, 0., 0.3),
+        (Sharpness, 0.1, 1.9),
+        (ShearX, 0., 0.3),
+        (ShearY, 0., 0.3),
         (CutoutAbs, 0, 40),
         (TranslateXabs, 0., 100),
-        (TranslateYabs, 0., 100),
     ]
 
     return l
