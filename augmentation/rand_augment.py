@@ -259,11 +259,11 @@ def augment_list_depth():  # 16 oeprations and their ranges
     # https://github.com/tensorflow/tpu/blob/8462d083dd89489a79e3200bcc8d4063bf362186/models/official/efficientnet/autoaugment.py#L505
     l = [
         (Rotate, 0, 30),
-        (Sharpness, 0.1, 1.9),
-        (ShearX, 0., 0.3),
-        (ShearY, 0., 0.3),
+        # (Sharpness, 0.1, 1.9),
+        # (ShearX, 0., 0.3),
+        # (ShearY, 0., 0.3),
         (CutoutAbs, 0, 40),
-        (TranslateXabs, 0., 100),
+        # (TranslateXabs, 0., 100),
     ]
 
     return l
