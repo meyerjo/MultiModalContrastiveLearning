@@ -421,12 +421,11 @@ def build_dataset(dataset, batch_size, input_dir=None,
         assert label_proportion is None, 'label_proportion not implemented'
         num_classes = 19
 
-        train_transform = Transforms_NYU_RGBD_Ablation(
+        train_transform = Transforms_NYU_RGBD(
             modality=modality,
             normalizer_mod1=nyu_rgbd_squared.NORMALIZATION_PARAMS['RGB'],
             normalizer_mod2=nyu_rgbd_squared.NORMALIZATION_PARAMS['DEPTH'],
             use_randaugment=use_randaugment,
-            randaugment=selected_randaugment
         )
         test_transform = train_transform.test_transform
 
