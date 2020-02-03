@@ -35,18 +35,6 @@ NORMALIZATION_PARAMS = {
         'std':  [57.51121648/255., 37.11818585/255., 49.42439366/255.]
     },
 }
-# TEST distribution is the following
-# mean_rgb
-# Out[3]: array([126.01805254, 119.00382699, 112.006402  ])
-# std_rgb = np.std(concat_elements, axis=0)
-# std_rgb
-# Out[5]: array([71.10925615, 73.17516656, 74.65919546])
-
-# mean_rgb
-# Out[5]: array([102.83441545])
-# std_rgb
-# Out[6]: array([81.72894529])
-
 
 class Transforms_NYU_RGBD(object):
     '''
