@@ -35,7 +35,7 @@ class Dataset(Enum):
     WASHINGTON = 9
     NYU_RGBD = 10
     NYU_RGBD_ABLATION = 11
-    NYU_RGBD_SQUARED = 11
+    NYU_RGBD_SQUARED = 12
 
 
 def get_encoder_size(dataset):
