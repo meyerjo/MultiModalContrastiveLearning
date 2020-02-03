@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 
-from augmentation import falling_things, washington_rgbd, nyu_rgbd
+from augmentation import falling_things, washington_rgbd, nyu_rgbd, nyu_rgbd_squared
 from augmentation import sun_rgbd
 from augmentation.falling_things import TransformsFallingThings128
 from augmentation.nyu_rgbd_ablation import Transforms_NYU_RGBD_Ablation
@@ -35,6 +35,7 @@ class Dataset(Enum):
     WASHINGTON = 9
     NYU_RGBD = 10
     NYU_RGBD_ABLATION = 11
+    NYU_RGBD_SQUARED = 11
 
 
 def get_encoder_size(dataset):
@@ -52,7 +53,9 @@ def get_encoder_size(dataset):
         return 128
     if dataset == Dataset.WASHINGTON:
         return 128
-    if dataset == Dataset.NYU_RGBD or dataset == Dataset.NYU_RGBD_ABLATION:
+    if dataset == Dataset.NYU_RGBD or \
+            dataset == Dataset.NYU_RGBD_ABLATION or \
+            dataset == Dataset.NYU_RGBD_SQUARED:
         return 128
     raise RuntimeError("Couldn't get encoder size, unknown dataset: {}".format(dataset))
 
@@ -401,6 +404,27 @@ def build_dataset(dataset, batch_size, input_dir=None,
             modality=modality,
             normalizer_mod1=nyu_rgbd.NORMALIZATION_PARAMS['RGB'],
             normalizer_mod2=nyu_rgbd.NORMALIZATION_PARAMS['DEPTH'],
+            use_randaugment=use_randaugment,
+            randaugment=selected_randaugment
+        )
+        test_transform = train_transform.test_transform
+
+        train_dataset = NYU_RGBD_Dataset(
+            root=train_dir, train=True,
+            transform=train_transform, modality=modality
+        )
+        test_dataset = NYU_RGBD_Dataset(
+            root=val_dir, train=False,
+            transform=test_transform, modality=modality
+        )
+    elif dataset == Dataset.NYU_RGBD_SQUARED:
+        assert label_proportion is None, 'label_proportion not implemented'
+        num_classes = 19
+
+        train_transform = Transforms_NYU_RGBD_Ablation(
+            modality=modality,
+            normalizer_mod1=nyu_rgbd_squared.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=nyu_rgbd_squared.NORMALIZATION_PARAMS['DEPTH'],
             use_randaugment=use_randaugment,
             randaugment=selected_randaugment
         )

@@ -3,7 +3,9 @@ import numpy as np
 
 NNSIZE = (256, 256, 3)
 
-def scaleit3(img):
+def scaleit3(img, size=None):
+    if size is not None:
+        NNSIZE = size
     imsz = img.shape
     rd = float(NNSIZE[0]) / float(np.max(imsz))
     mxdim = np.max(imsz)
