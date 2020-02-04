@@ -16,6 +16,7 @@ from augmentation.washington_rgbd import Transforms_Washington_RGBD
 from augmentation.nyu_rgbd import Transforms_NYU_RGBD
 from data_io.falling_things import Falling_Things_Dataset
 from data_io.nyu_rgbd import NYU_RGBD_Dataset
+from data_io.nyu_rgbd_squared import NYU_RGBD_Dataset_Squared
 from data_io.sun_rgbd import Sun_RGBD_Dataset
 from data_io.washington_rgbd import Washington_RGBD_Dataset
 
@@ -429,11 +430,11 @@ def build_dataset(dataset, batch_size, input_dir=None,
         )
         test_transform = train_transform.test_transform
 
-        train_dataset = NYU_RGBD_Dataset(
+        train_dataset = NYU_RGBD_Dataset_Squared(
             root=train_dir, train=True,
             transform=train_transform, modality=modality
         )
-        test_dataset = NYU_RGBD_Dataset(
+        test_dataset = NYU_RGBD_Dataset_Squared(
             root=val_dir, train=False,
             transform=test_transform, modality=modality
         )

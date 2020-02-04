@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 
-NNSIZE = (256, 256, 3)
 
 def scaleit3(img, size=None):
+    NNSIZE = (256, 256, 3)
     if size is not None:
         NNSIZE = size
     imsz = img.shape
