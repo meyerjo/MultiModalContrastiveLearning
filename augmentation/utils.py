@@ -74,7 +74,7 @@ class RandomResizedCropMultipleIndividually(transforms.RandomResizedCrop):
 
     def __call__(self, inputs):
         assert(len(inputs) > 0)
-        for i, input in enumerate(inputs):
-            i, j, h, w = self.get_params(inputs[i], self.scale, self.ratio)
-            inputs[i] = TF.resized_crop(input, i, j, h, w, self.size, self.interpolation)
+        for index, input in enumerate(inputs):
+            i, j, h, w = self.get_params(inputs[index], self.scale, self.ratio)
+            inputs[index] = TF.resized_crop(input, i, j, h, w, self.size, self.interpolation)
         return inputs
