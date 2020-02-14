@@ -7,7 +7,7 @@ from augmentation import rand_augment
 from augmentation.rand_augment import RandAugment, RandAugmentMultipleModalities
 from augmentation.utils import MultipleInputsToTensor, AddFirstDimension, \
     ResizeMultiple, CenterCropMultiple, MultipleInputsNormalize, \
-    RandomResizedCropMultiple
+    RandomResizedCropMultiple, RandomResizedCropMultipleIndividually
 
 INTERP = 3
 # mu_rgb = np.mean(np.reshape(data, (-1, 3)), axis=0)
@@ -77,7 +77,8 @@ class Transforms_NYU_RGBD(object):
             normalizer_mod2 = NORMALIZATION_PARAMS['DEPTH']
 
         # image augmentation functions
-        if modality is None or modality == 'rgb' or modality == 'd' or modality == 'depth':
+        # if modality is None or modality == 'rgb' or modality == 'd' or modality == 'depth':
+        if modality is None or modality in ['rgb', 'd', 'depth']:
             self.flip_lr = transforms.RandomHorizontalFlip(p=0.5)
             rand_crop = \
                 transforms.RandomResizedCrop(128, scale=(0.3, 1.0), ratio=(0.7, 1.4),
@@ -130,11 +131,16 @@ class Transforms_NYU_RGBD(object):
                 transforms.CenterCrop(128),
                 post_transform
             ])
-        elif (modality == 'dual') or (modality == 'rgb_d'):
+        # elif (modality == 'dual') or (modality == 'rgb_d'):
+        elif modality in ['dual', 'rgb_d']:
             # Handling multiple modalities
             self.flip_lr_multiple = self.custom_flip
+            print('Doing indepedent crops per modality')
+            # rand_crop_multiple = \
+            #     RandomResizedCropMultiple(
+            #         128, scale=(0.3, 1.0), ratio=(0.7, 1.4), interpolation=INTERP)
             rand_crop_multiple = \
-                RandomResizedCropMultiple(
+                RandomResizedCropMultipleIndividually(
                     128, scale=(0.3, 1.0), ratio=(0.7, 1.4), interpolation=INTERP)
 
             rand_augment_multiple_modalities = \
@@ -171,9 +177,8 @@ class Transforms_NYU_RGBD(object):
                     rand_crop_multiple,
                     post_transform_multiple
                 ])
-
         else:
-            raise BaseException('Modality unknown')
+            raise BaseException(f'Modality unknown: {modality}')
 
 
     def __call__(self, inp):
