@@ -293,11 +293,13 @@ def build_dataset(dataset, batch_size, input_dir=None,
         train_dataset = datasets.ImageFolder(train_dir, train_transform)
         test_dataset = datasets.ImageFolder(val_dir, test_transform)
     elif dataset == Dataset.FALLINGTHINGS or dataset == Dataset.FALLINGTHINGS_RGB_D:
+        print('Using Randaugment with Falling-Things: {}'.format(use_randaugment))
         num_classes = 21
         train_transform = TransformsFallingThings128(
             modality=modality,
             normalizer_mod1=falling_things.NORMALIZATION_PARAMS['RGB'],
-            normalizer_mod2=falling_things.NORMALIZATION_PARAMS['DEPTH']
+            normalizer_mod2=falling_things.NORMALIZATION_PARAMS['DEPTH'],
+            use_randaugment=use_randaugment
         )
         test_transform = train_transform.test_transform
 

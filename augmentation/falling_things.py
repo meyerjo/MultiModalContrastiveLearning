@@ -3,6 +3,7 @@ import random
 import torchvision.transforms.functional as TF
 from torchvision import transforms
 
+from augmentation.rand_augment import RandAugmentMultipleModalities
 from augmentation.utils import MultipleInputsToTensor, AddFirstDimension, \
     ResizeMultiple, CenterCropMultiple, MultipleInputsNormalize, \
     RandomResizedCropMultiple
@@ -37,10 +38,13 @@ class TransformsFallingThings128(object):
         return inputs
 
 
-    def __init__(self, modality=None, normalizer_mod1=None, normalizer_mod2=None):
+    def __init__(self, modality=None, normalizer_mod1=None, normalizer_mod2=None, use_randaugment=False):
         """
 
         :param modality: Modality
+        :param normalizer_mod1:
+        :param normalizer_mod2:
+        :param use_randaugment:
         """
         # make sure if one is specified both are specified just to avoid confusion
         if (normalizer_mod1 is None and normalizer_mod2 is not None) or \
@@ -70,6 +74,8 @@ class TransformsFallingThings128(object):
 
         # image augmentation functions
         if modality is None or modality == 'rgb' or modality == 'd' or modality == 'depth':
+            if use_randaugment:
+                print('Rand-Augment usage for single modality not supported')
             self.flip_lr = transforms.RandomHorizontalFlip(p=0.5)
             rand_crop = \
                 transforms.RandomResizedCrop(128, scale=(0.3, 1.0), ratio=(0.7, 1.4),
@@ -127,9 +133,22 @@ class TransformsFallingThings128(object):
                 ResizeMultiple(146, interpolation=INTERP),
                 CenterCropMultiple(128), post_transform_multiple
             ])
-            self.train_transform = transforms.Compose([
-                rand_crop_multiple, post_transform_multiple
-            ])
+            rand_augment_multiple_modalities = \
+                RandAugmentMultipleModalities(3, 4, 0)
+            rand_augment_multiple_modalities_depth = \
+                RandAugmentMultipleModalities(3, 4, 1, 'depth')
+
+            if use_randaugment:
+                self.train_transform = transforms.Compose([
+                    rand_crop_multiple,
+                    rand_augment_multiple_modalities,
+                    rand_augment_multiple_modalities_depth,
+                    post_transform_multiple
+                ])
+            else:
+                self.train_transform = transforms.Compose([
+                    rand_crop_multiple, post_transform_multiple
+                ])
 
         else:
             raise BaseException('Modality unknown')
