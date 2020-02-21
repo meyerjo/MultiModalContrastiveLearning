@@ -3,7 +3,8 @@ import random
 import torchvision.transforms.functional as TF
 from torchvision import transforms
 
-from augmentation.rand_augment import RandAugmentMultipleModalities
+from augmentation import rand_augment
+from augmentation.rand_augment import RandAugmentMultipleModalities, RandAugment
 from augmentation.utils import MultipleInputsToTensor, AddFirstDimension, \
     ResizeMultiple, CenterCropMultiple, MultipleInputsNormalize, \
     RandomResizedCropMultiple, RandomResizedCropMultipleIndividually
@@ -97,13 +98,32 @@ class TransformsFallingThings128(object):
 
             post_transform = transforms.Compose(post_transform_steps)
 
+            rand_augmentation = RandAugment(3, 4)
+            rand_augmentation_depth = RandAugment(2, 4, rand_augment.augment_list_depth())
 
-            self.train_transform = transforms.Compose([
-                rand_crop,
-                # col_jitter,
-                # rnd_gray,
-                post_transform
-            ])
+            if modality == 'rgb' and use_randaugment:
+                print('Using rand augmentation...')
+                self.train_transform = transforms.Compose([
+                    rand_crop, rand_augmentation, post_transform
+                ])
+            elif modality == 'rgb':
+                print('Not using rand augmentation...')
+                self.train_transform = transforms.Compose([
+                    rand_crop, post_transform
+                ])
+            elif (modality == 'depth' or modality == 'd') and use_randaugment:
+                print('Using rand augmentation...')
+                self.train_transform = transforms.Compose([
+                    rand_crop, rand_augmentation_depth, post_transform
+                ])
+            elif modality == 'depth' or modality == 'd':
+                print('Not using rand augmentation...')
+                self.train_transform = transforms.Compose([
+                    rand_crop, post_transform
+                ])
+            else:
+                raise BaseException('Unknown modality')
+
             self.test_transform = transforms.Compose([
                 transforms.Resize(146, interpolation=INTERP),
                 transforms.CenterCrop(128),
