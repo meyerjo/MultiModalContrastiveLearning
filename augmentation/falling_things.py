@@ -6,7 +6,7 @@ from torchvision import transforms
 from augmentation.rand_augment import RandAugmentMultipleModalities
 from augmentation.utils import MultipleInputsToTensor, AddFirstDimension, \
     ResizeMultiple, CenterCropMultiple, MultipleInputsNormalize, \
-    RandomResizedCropMultiple
+    RandomResizedCropMultiple, RandomResizedCropMultipleIndividually
 
 INTERP = 3
 
@@ -113,7 +113,7 @@ class TransformsFallingThings128(object):
             # Handling multiple modalities
             self.flip_lr_multiple = self.custom_flip
             rand_crop_multiple = \
-                RandomResizedCropMultiple(
+                RandomResizedCropMultipleIndividually(
                     128, scale=(0.3, 1.0), ratio=(0.7, 1.4), interpolation=INTERP)
 
             post_transform_multiple = transforms.Compose([
