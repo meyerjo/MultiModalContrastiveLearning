@@ -8,7 +8,7 @@ from augmentation.rand_augment import RandAugment, \
     RandAugmentMultipleModalities, RandAugmentDictDepth
 from augmentation.utils import MultipleInputsToTensor, AddFirstDimension, \
     ResizeMultiple, CenterCropMultiple, MultipleInputsNormalize, \
-    RandomResizedCropMultiple
+    RandomResizedCropMultiple, SpeckleNoise
 
 INTERP = 3
 # mu_rgb = np.mean(np.reshape(data, (-1, 3)), axis=0)
@@ -103,6 +103,7 @@ class Transforms_NYU_RGBD_Ablation(object):
             post_transform = transforms.Compose(post_transform_steps)
 
             rand_augmentation_depth = RandAugmentDictDepth(1, 4, None, randaugment)
+            speckle_noise = SpeckleNoise(1, 10e-1)
 
             if modality == 'rgb' and use_randaugment:
                 raise NotImplementedError('Do not use ablation function for this')
@@ -110,8 +111,12 @@ class Transforms_NYU_RGBD_Ablation(object):
                 raise NotImplementedError('Do not use ablation function for this')
             elif (modality == 'depth' or modality == 'd') and use_randaugment:
                 print('Using rand augmentation...')
+                print('only using speckle noise')
                 self.train_transform = transforms.Compose([
-                    rand_crop, rand_augmentation_depth, post_transform
+                    rand_crop,
+                    # rand_augmentation_depth,
+                    speckle_noise,
+                    post_transform
                 ])
             elif modality == 'depth' or modality == 'd':
                 raise NotImplementedError('Do not use ablation function for this')
