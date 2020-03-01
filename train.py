@@ -117,7 +117,9 @@ def main():
                       modality=args.modality,
                       label_proportion=args.label_proportion,
                       use_randaugment=args.use_randaugment,
-                      selected_randaugment=args.selected_randaugment)
+                      selected_randaugment=args.selected_randaugment,
+                      depth_augmentation_type_set=args.depth_augmentation_set
+                      )
 
     torch_device = torch.device('cuda')
     # create new model with random parameters
