@@ -215,11 +215,12 @@ def augmentation_dicts_depth():
         'cutoutabs': (CutoutAbs, 0, 40),
         'translatexabs': (TranslateXabs, 0., 100),
         'translateyabs': (TranslateYabs, 0., 100),
+        'speckle': None
     }
 
 
 
-def augment_list_depth():  # 16 oeprations and their ranges
+def augment_list_depth(set=None):  # 16 oeprations and their ranges
     # https://github.com/google-research/uda/blob/master/image/randaugment/policies.py#L57
     # l = [
     #     (Identity, 0., 1.0),
@@ -257,14 +258,28 @@ def augment_list_depth():  # 16 oeprations and their ranges
     #     (TranslateYabs, 0., 100),
     # ]
     # https://github.com/tensorflow/tpu/blob/8462d083dd89489a79e3200bcc8d4063bf362186/models/official/efficientnet/autoaugment.py#L505
-    l = [
-        (Rotate, 0, 30),
-        # (Sharpness, 0.1, 1.9),
-        # (ShearX, 0., 0.3),
-        # (ShearY, 0., 0.3),
-        (CutoutAbs, 0, 40),
-        # (TranslateXabs, 0., 100),
-    ]
+    if set is None or set in ['set1']:
+        print('Using set 1 for data augmentation')
+        l = [
+            (Rotate, 0, 30),
+            # (Sharpness, 0.1, 1.9),
+            # (ShearX, 0., 0.3),
+            # (ShearY, 0., 0.3),
+            (CutoutAbs, 0, 40),
+            # (TranslateXabs, 0., 100),
+        ]
+    elif set in ['set2']:
+        print('Using set 2 for data augmentation')
+        l = [
+            (Rotate, 0, 30),
+            (Sharpness, 0.1, 1.9),
+            (ShearX, 0., 0.3),
+            (ShearY, 0., 0.3),
+            (CutoutAbs, 0, 40),
+            (TranslateXabs, 0., 100),
+        ]
+    else:
+        raise BaseException('Unknown augmentation set')
 
     return l
 

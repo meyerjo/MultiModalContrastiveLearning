@@ -62,6 +62,7 @@ parser.add_argument('--label_proportion', type=float, default=None,
 parser.add_argument('--use_randaugment', action='store_true', default=False,
                     help='Use rand augmentation')
 parser.add_argument('--selected_randaugment', type=str, default=None)
+parser.add_argument('--depth_augmentation_set', type=str, default=None)
 
 parser.add_argument('--epochs', type=int, default=None, help='Number of epochs')
 # ...

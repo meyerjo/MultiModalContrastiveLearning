@@ -45,7 +45,7 @@ class Transforms_NYU_RGBD(object):
             inputs = [TF.hflip(img) for img in inputs]
         return inputs
 
-    def __init__(self, modality=None, normalizer_mod1=None, normalizer_mod2=None, use_randaugment=True):
+    def __init__(self, modality=None, normalizer_mod1=None, normalizer_mod2=None, use_randaugment=True, depth_augmentation_set=None):
         """
 
         :param modality: Modality
@@ -101,7 +101,8 @@ class Transforms_NYU_RGBD(object):
             post_transform = transforms.Compose(post_transform_steps)
 
             rand_augmentation = RandAugment(3, 4)
-            rand_augmentation_depth = RandAugment(2, 4, rand_augment.augment_list_depth())
+            rand_augmentation_depth = RandAugment(
+                2, 4, rand_augment.augment_list_depth(depth_augmentation_set))
 
             if modality == 'rgb' and use_randaugment:
                 print('Using rand augmentation...')

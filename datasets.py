@@ -231,7 +231,8 @@ class TransformsImageNet128:
 
 def build_dataset(dataset, batch_size, input_dir=None,
                   labeled_only=False, modality=None, label_proportion=None,
-                  use_randaugment=True, selected_randaugment=None):
+                  use_randaugment=True, selected_randaugment=None,
+                  depth_augmentation_type_set=None):
 
     train_dir, val_dir = _get_directories(dataset, input_dir)
 
@@ -242,6 +243,8 @@ def build_dataset(dataset, batch_size, input_dir=None,
         ))
     if selected_randaugment is not None:
         assert dataset == Dataset.NYU_RGBD_ABLATION, 'dataset has to be NYU_RGB/D'
+    if depth_augmentation_type_set is not None:
+        assert dataset == Dataset.NYU_RGBD_SQUARED, 'dataset has to be NYU_RGBD_SQUARED'
 
     if dataset == Dataset.C10:
         num_classes = 10
@@ -429,6 +432,7 @@ def build_dataset(dataset, batch_size, input_dir=None,
             normalizer_mod1=nyu_rgbd_squared.NORMALIZATION_PARAMS['RGB'],
             normalizer_mod2=nyu_rgbd_squared.NORMALIZATION_PARAMS['DEPTH'],
             use_randaugment=use_randaugment,
+            depth_augmentation_set=depth_augmentation_type_set
         )
         test_transform = train_transform.test_transform
 
