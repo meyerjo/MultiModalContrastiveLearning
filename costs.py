@@ -175,10 +175,10 @@ class LossMultiNCE(nn.Module):
     Input is fixed as r1_x1, r5_x1, r7_x1, r1_x2, r5_x2, r7_x2.
     '''
 
-    def __init__(self, tclip=10.):
+    def __init__(self, tclip=10., loss_predictions=None):
         super(LossMultiNCE, self).__init__()
         # initialize the dataparallel nce computer (magic!)
-        self.nce_func = NCE_MI_MULTI(tclip=tclip)
+        self.nce_func = NCE_MI_MULTI(tclip=tclip, loss_predictions=loss_predictions)
         self.nce_func = nn.DataParallel(self.nce_func)
         # construct masks for sampling source features from 5x5 layer
         masks_r5 = np.zeros((5, 5, 1, 5, 5))
@@ -260,13 +260,13 @@ class LossMultiNCE(nn.Module):
         # adjust cost weight to compensate for hacky skip of cuda:0
         if n_gpus >= 4:
             rescale = float(n_gpus) / float(n_gpus - 1)
-            loss_1t5 = rescale * loss_1t5.mean()
-            loss_1t7 = rescale * loss_1t7.mean()
-            loss_5t5 = rescale * loss_5t5.mean()
+            loss_1t5 = rescale * loss_1t5.mean() if loss_1t5 is not None else None
+            loss_1t7 = rescale * loss_1t7.mean() if loss_1t7 is not None else None
+            loss_5t5 = rescale * loss_5t5.mean() if loss_5t5 is not None else None
             lgt_reg = rescale * lgt_reg.mean()
         else:
-            loss_1t5 = loss_1t5.mean()
-            loss_1t7 = loss_1t7.mean()
-            loss_5t5 = loss_5t5.mean()
+            loss_1t5 = loss_1t5.mean() if loss_1t5 is not None else None
+            loss_1t7 = loss_1t7.mean() if loss_1t7 is not None else None
+            loss_5t5 = loss_5t5.mean() if loss_5t5 is not None else None
             lgt_reg = lgt_reg.mean()
         return loss_1t5, loss_1t7, loss_5t5, lgt_reg
