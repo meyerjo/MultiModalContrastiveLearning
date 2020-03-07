@@ -119,9 +119,9 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
                 'loss_cls': loss_cls.item(),
                 'loss_g2l': loss_g2l.item(),
                 'lgt_reg': res_dict['lgt_reg'].item(),
-                'loss_g2l_1t5': res_dict['g2l_1t5'].item(),
-                'loss_g2l_1t7': res_dict['g2l_1t7'].item(),
-                'loss_g2l_5t5': res_dict['g2l_5t5'].item()
+                'loss_g2l_1t5': res_dict['g2l_1t5'].item() if res_dict['g2l_1t5'] is not None else None,
+                'loss_g2l_1t7': res_dict['g2l_1t7'].item() if res_dict['g2l_1t7'] is not None else None,
+                'loss_g2l_5t5': res_dict['g2l_5t5'].item() if res_dict['g2l_5t5'] is not None else None
             }, n=1)
             if baseline_training and \
                     (modality_to_test == 'rgb' or modality_to_test == 'depth'):
