@@ -63,6 +63,7 @@ parser.add_argument('--use_randaugment', action='store_true', default=False,
                     help='Use rand augmentation')
 parser.add_argument('--selected_randaugment', type=str, default=None)
 parser.add_argument('--depth_augmentation_set', type=str, default=None)
+parser.add_argument('--loss_predictions', type=str, default=None)
 
 parser.add_argument('--epochs', type=int, default=None, help='Number of epochs')
 # ...
@@ -82,6 +83,17 @@ def main():
         print('Mode active which trains classifiers and baseline - without classification loss')
     elif args.baseline:
         print('Mode active which trains classifiers and feature extract at the same time')
+
+    if args.loss_predictions is not None:
+        split_loss_terms = args.loss_predictions.split(',')
+        if len(split_loss_terms) == 1 and split_loss_terms[0] == 'all':
+            loss_predictions = 'all'
+        else:
+            # make sure we only have valid loss terms
+            assert all([t in ['1t5', '1t7', '5t5'] for t in split_loss_terms])
+            loss_predictions = split_loss_terms
+    else:
+        loss_predictions = None
 
     if args.baseline and args.classifiers:
         args.cpt_name = 'amdim_baseline_cpt.pth'
@@ -125,7 +137,7 @@ def main():
     # create new model with random parameters
     model = Model(ndf=args.ndf, n_classes=num_classes, n_rkhs=args.n_rkhs,
                   tclip=args.tclip, n_depth=args.n_depth, enc_size=enc_size,
-                  use_bn=(args.use_bn == 1))
+                  use_bn=(args.use_bn == 1), loss_predictions=loss_predictions)
     model.init_weights(init_scale=1.0)
     # restore model parameters from a checkpoint if requested
     checkpoint = Checkpoint(

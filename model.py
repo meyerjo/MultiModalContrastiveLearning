@@ -173,7 +173,8 @@ class Evaluator(nn.Module):
 
 class Model(nn.Module):
     def __init__(self, ndf, n_classes, n_rkhs, tclip=20.,
-                 n_depth=3, use_bn=False, enc_size=32):
+                 n_depth=3, use_bn=False, enc_size=32,
+                 loss_predictions=None):
         super(Model, self).__init__()
         self.n_rkhs = n_rkhs
         self.tasks = ('1t5', '1t7', '5t5', '5t7', '7t7')
@@ -188,7 +189,7 @@ class Model(nn.Module):
         self.encoder = nn.DataParallel(self.encoder)
 
         # configure hacky multi-gpu module for infomax costs
-        self.g2l_loss = LossMultiNCE(tclip=tclip)
+        self.g2l_loss = LossMultiNCE(tclip=tclip, loss_predictions=loss_predictions)
 
         # configure modules for classification with self-supervised features
         self.evaluator = Evaluator(n_classes, ftr_1=rkhs_1)
@@ -196,6 +197,8 @@ class Model(nn.Module):
         # gather lists of self-supervised and classifier modules
         self.info_modules = [self.encoder.module, self.g2l_loss]
         self.class_modules = [self.evaluator]
+
+        self.loss_predictions = loss_predictions
 
     def init_weights(self, init_scale=1.):
         self.encoder.module.init_weights(init_scale)
@@ -286,9 +289,9 @@ class Model(nn.Module):
         # compute NCE infomax objective at multiple scales
         loss_1t5, loss_1t7, loss_5t5, lgt_reg = \
             self.g2l_loss(r1_x1, r5_x1, r7_x1, r1_x2, r5_x2, r7_x2)
-        res_dict['g2l_1t5'] = loss_1t5
-        res_dict['g2l_1t7'] = loss_1t7
-        res_dict['g2l_5t5'] = loss_5t5
+        res_dict['g2l_1t5'] = loss_1t5 if loss_1t5 is not None else None
+        res_dict['g2l_1t7'] = loss_1t7 if loss_1t7 is not None else None
+        res_dict['g2l_5t5'] = loss_5t5 if loss_5t5 is not None else None
         res_dict['lgt_reg'] = lgt_reg
         # grab global features for use elsewhere
         res_dict['rkhs_glb'] = flatten(r1_x1)

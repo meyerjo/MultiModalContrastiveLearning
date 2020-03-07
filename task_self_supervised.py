@@ -72,9 +72,10 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
                 res_dict = model(x1=images1, x2=images2, class_only=False)
             lgt_glb_mlp, lgt_glb_lin = res_dict['class']
             # compute costs for all self-supervised tasks
-            loss_g2l = (res_dict['g2l_1t5'] +
-                        res_dict['g2l_1t7'] +
-                        res_dict['g2l_5t5'])
+            loss_g2l = sum(res_dict[l] for l in ['g2l_1t5', 'g2l_1t7', 'g2l_5t5'] if res_dict[l] is not None)
+            # loss_g2l = (res_dict['g2l_1t5'] +
+            #             res_dict['g2l_1t7'] +
+            #             res_dict['g2l_5t5'])
             loss_inf = loss_g2l + res_dict['lgt_reg']
 
             # compute loss for online evaluation classifiers

@@ -26,9 +26,10 @@ def loss_xent(logits, labels, ignore_index=-1):
 
 
 class NCE_MI_MULTI(nn.Module):
-    def __init__(self, tclip=20.):
+    def __init__(self, tclip=20., loss_predictions=None):
         super(NCE_MI_MULTI, self).__init__()
         self.tclip = tclip
+        self.loss_predictions = loss_predictions
 
     def _model_scores(self, r_src, r_trg, mask_mat):
         '''
@@ -115,21 +116,52 @@ class NCE_MI_MULTI(nn.Module):
                 loss_5t5 = mask_mat.detach().mean()
                 lgt_reg = mask_mat.detach().mean()
             else:
-                # compute costs for 1->5 prediction
-                loss_1t5_1, lgt_1t5_1 = self._loss_g2l(r1_src_1, r5_trg_2[0], mask_mat)
-                loss_1t5_2, lgt_1t5_2 = self._loss_g2l(r1_src_2, r5_trg_1[0], mask_mat)
-                # compute costs for 1->7 prediction
-                loss_1t7_1, lgt_1t7_1 = self._loss_g2l(r1_src_1, r7_trg_2[0], mask_mat)
-                loss_1t7_2, lgt_1t7_2 = self._loss_g2l(r1_src_2, r7_trg_1[0], mask_mat)
-                # compute costs for 5->5 prediction
-                loss_5t5_1, lgt_5t5_1 = self._loss_g2l(r5_src_1, r5_trg_2[0], mask_mat)
-                loss_5t5_2, lgt_5t5_2 = self._loss_g2l(r5_src_2, r5_trg_1[0], mask_mat)
-                # combine costs for optimization
-                loss_1t5 = 0.5 * (loss_1t5_1 + loss_1t5_2)
-                loss_1t7 = 0.5 * (loss_1t7_1 + loss_1t7_2)
-                loss_5t5 = 0.5 * (loss_5t5_1 + loss_5t5_2)
-                lgt_reg = 0.5 * (lgt_1t5_1 + lgt_1t5_2 + lgt_1t7_1 +
-                                 lgt_1t7_2 + lgt_5t5_1 + lgt_5t5_2)
+                if self.loss_predictions is None or self.loss_predictions == 'all':
+                    # compute costs for 1->5 prediction
+                    loss_1t5_1, lgt_1t5_1 = self._loss_g2l(r1_src_1, r5_trg_2[0], mask_mat)
+                    loss_1t5_2, lgt_1t5_2 = self._loss_g2l(r1_src_2, r5_trg_1[0], mask_mat)
+                    # compute costs for 1->7 prediction
+                    loss_1t7_1, lgt_1t7_1 = self._loss_g2l(r1_src_1, r7_trg_2[0], mask_mat)
+                    loss_1t7_2, lgt_1t7_2 = self._loss_g2l(r1_src_2, r7_trg_1[0], mask_mat)
+                    # compute costs for 5->5 prediction
+                    loss_5t5_1, lgt_5t5_1 = self._loss_g2l(r5_src_1, r5_trg_2[0], mask_mat)
+                    loss_5t5_2, lgt_5t5_2 = self._loss_g2l(r5_src_2, r5_trg_1[0], mask_mat)
+                    # combine costs for optimization
+                    loss_1t5 = 0.5 * (loss_1t5_1 + loss_1t5_2)
+                    loss_1t7 = 0.5 * (loss_1t7_1 + loss_1t7_2)
+                    loss_5t5 = 0.5 * (loss_5t5_1 + loss_5t5_2)
+                    lgt_reg = 0.5 * (lgt_1t5_1 + lgt_1t5_2 + lgt_1t7_1 +
+                                     lgt_1t7_2 + lgt_5t5_1 + lgt_5t5_2)
+                else:
+                    loss_1t5, loss_1t7, loss_5t5 = None, None, None
+                    loss_collection = []
+                    for loss_type in self.loss_predictions:
+                        if loss_type == '1t5':
+                            # compute costs for 1->5 prediction
+                            loss_1t5_1, lgt_1t5_1 = self._loss_g2l(r1_src_1, r5_trg_2[0], mask_mat)
+                            loss_1t5_2, lgt_1t5_2 = self._loss_g2l(r1_src_2, r5_trg_1[0], mask_mat)
+                            loss_collection.append(lgt_1t5_1)
+                            loss_collection.append(lgt_1t5_2)
+                            loss_1t5 = 0.5 * (loss_1t5_1 + loss_1t5_2)
+                        elif loss_type == '1t7':
+                            # compute costs for 1->7 prediction
+                            loss_1t7_1, lgt_1t7_1 = self._loss_g2l(r1_src_1, r7_trg_2[0], mask_mat)
+                            loss_1t7_2, lgt_1t7_2 = self._loss_g2l(r1_src_2, r7_trg_1[0], mask_mat)
+                            loss_collection.append(lgt_1t7_1)
+                            loss_collection.append(lgt_1t7_2)
+                            loss_1t7 = 0.5 * (loss_1t7_1 + loss_1t7_2)
+                        elif loss_type == '5t5':
+                            # compute costs for 5->5 prediction
+                            loss_5t5_1, lgt_5t5_1 = self._loss_g2l(r5_src_1, r5_trg_2[0], mask_mat)
+                            loss_5t5_2, lgt_5t5_2 = self._loss_g2l(r5_src_2, r5_trg_1[0], mask_mat)
+                            loss_collection.append(lgt_5t5_1)
+                            loss_collection.append(lgt_5t5_2)
+                            loss_5t5 = 0.5 * (loss_5t5_1 + loss_5t5_2)
+                        else:
+                            raise BaseException('Unnown loss_type')
+
+                    lgt_reg = 0.5 * sum(loss_collection)
+
             return loss_1t5, loss_1t7, loss_5t5, lgt_reg
         else:
             # compute values to use for visualizations
