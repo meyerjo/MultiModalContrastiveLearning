@@ -97,9 +97,11 @@ class Falling_Things_Dataset(VisionDataset):
                         for t in random_keys:
                             file_handle.write(t + '\n')
             else:
+                print('Reading label_proportions split from: {}'.format(label_prop_filename))
                 with open(label_prop_filename, 'r') as f:
                     random_keys = f.readlines()
                 random_keys = [re.search('^(.+)\n$', f).group(1) for f in random_keys]
+        print('train = {}, label_proportion = {}'.format(self.train, label_proportion))
 
         print('Loading the data...')
         self.data = []
