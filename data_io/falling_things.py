@@ -145,6 +145,7 @@ class Falling_Things_Dataset(VisionDataset):
             # add the class to the set of classes
             self.classes.add(entries['class'])
         self.classes = list(self.classes)
+        self.classes = sorted(self.classes)
 
         self._load_meta()
 
