@@ -134,11 +134,11 @@ def main():
                       )
 
     torch_device = torch.device('cuda')
-    checkpointer = Checkpointer(args.output_dir)
+    checkpointer = Checkpointer(args.output_dir, args.cpt_name)
     if args.cpt_load_path:
         model = checkpointer.restore_model_from_checkpoint(
                     args.cpt_load_path,
-                    training_classifier=args.classifiers, cpt_name=args.cpt_name)
+                    training_classifier=args.classifiers)
     else:
         # create new model with random parameters
         model = Model(ndf=args.ndf, n_classes=num_classes, n_rkhs=args.n_rkhs,
