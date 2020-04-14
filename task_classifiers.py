@@ -2,25 +2,21 @@ import sys
 import time
 from datetime import datetime
 
-import torch
 import torch.optim as optim
-import torch.nn.functional as F
 from torch.optim.lr_scheduler import MultiStepLR
 
-from torchvision.utils import make_grid, save_image
-
 import mixed_precision
-from utils import weight_init, test_model, flatten
-from stats import AverageMeterSet, update_train_accuracies
-from datasets import Dataset
 from costs import loss_xent
+from datasets import Dataset
+from stats import AverageMeterSet, update_train_accuracies
+from utils import weight_init, test_model
 
 CURRENT_TIME = lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
-def _train(model, optimizer, scheduler, epochs, train_loader,
+def _train(model, optimizer, scheduler, checkpointer, epochs, train_loader,
            test_loader, stat_tracker, log_dir, device, modality_to_test,
-           baseline_training=False, checkpoint=None):
+           baseline_training=False):
     '''
     Training loop to train classifiers on top of an encoder with fixed weights.
     -- e.g., use this for eval or running on new data
@@ -31,7 +27,8 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
     # ...
     time_start = time.time()
     total_updates = 0
-    for epoch in range(epochs):
+    next_epoch, total_updates = checkpointer.get_current_position(classifier=True)
+    for epoch in range(next_epoch, epochs):
         epoch_updates = 0
         epoch_stats = AverageMeterSet()
         for _, ((images1, images2), labels, modalities) in enumerate(train_loader):
@@ -77,12 +74,12 @@ def _train(model, optimizer, scheduler, epochs, train_loader,
         print(diag_str)
         sys.stdout.flush()
         stat_tracker.record_stats(epoch_stats.averages(epoch, prefix='eval/'))
-        if baseline_training:
-            checkpoint.update(epoch + 1, total_updates)
+
+        checkpointer.update(epoch + 1, total_updates, classifier=True)
 
 
 def train_classifiers(model, learning_rate, dataset, train_loader,
-                      test_loader, stat_tracker, checkpoint, log_dir, device,
+                      test_loader, stat_tracker, checkpointer, log_dir, device,
                       modality_to_test, baseline_training=False, overwrite_epochs=None,
                       label_proportion=None):
     # retrain the evaluation classifiers using the trained feature encoder
@@ -125,8 +122,7 @@ def train_classifiers(model, learning_rate, dataset, train_loader,
         epochs = overwrite_epochs
     # retrain the model
     _train(
-        model, optimizer, scheduler, epochs, train_loader,
+        model, optimizer, scheduler, checkpointer, epochs, train_loader,
         test_loader, stat_tracker, log_dir, device,
-        modality_to_test, baseline_training,
-        checkpoint=checkpoint
+        modality_to_test, baseline_training
     )
