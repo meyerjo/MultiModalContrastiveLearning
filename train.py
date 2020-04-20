@@ -65,6 +65,8 @@ parser.add_argument('--selected_randaugment', type=str, default=None)
 parser.add_argument('--depth_augmentation_set', type=str, default=None)
 parser.add_argument('--loss_predictions', type=str, default=None)
 
+parser.add_argument('--rkhs_conv_depth', type=int, default=0)
+
 parser.add_argument('--epochs', type=int, default=None, help='Number of epochs')
 # ...
 args = parser.parse_args()
@@ -143,7 +145,8 @@ def main():
         # create new model with random parameters
         model = Model(ndf=args.ndf, n_classes=num_classes, n_rkhs=args.n_rkhs,
                     tclip=args.tclip, n_depth=args.n_depth, encoder_size=encoder_size,
-                    use_bn=(args.use_bn == 1), loss_predictions=loss_predictions)
+                    use_bn=(args.use_bn == 1), loss_predictions=loss_predictions,
+                      rkhs_conv_depth=args.rkhs_conv_depth)
         model.init_weights(init_scale=1.0)
         checkpointer.track_new_model(model)
 

@@ -15,7 +15,19 @@ def has_many_gpus():
 
 class Encoder(nn.Module):
     def __init__(self, dummy_batch, num_channels=3, ndf=64, n_rkhs=512,
-                n_depth=3, encoder_size=32, use_bn=False):
+                n_depth=3, encoder_size=32, use_bn=False, rkhs_conv_depth=0):
+        """
+
+        Args:
+            dummy_batch:
+            num_channels:
+            ndf:
+            n_rkhs:
+            n_depth:
+            encoder_size:
+            use_bn: bool flag indicateing to use batch norm
+            rkhs_conv_depth: how many mlp layers shall be added to the discriminator in feature space
+        """
         super(Encoder, self).__init__()
         self.ndf = ndf
         self.n_rkhs = n_rkhs
@@ -64,7 +76,7 @@ class Encoder(nn.Module):
         else:
             raise RuntimeError("Could not build encoder."
                                "Encoder size {} is not supported".format(encoder_size))
-        self._config_modules(dummy_batch, [1, 5, 7], n_rkhs, use_bn)
+        self._config_modules(dummy_batch, [1, 5, 7], n_rkhs, use_bn, rkhs_conv_depth)
 
     def init_weights(self, init_scale=1.):
         '''
@@ -79,9 +91,11 @@ class Encoder(nn.Module):
             if isinstance(layer, FakeRKHSConvNet):
                 layer.init_weights(init_scale)
 
-    def _config_modules(self, x, rkhs_layers, n_rkhs, use_bn):
+    def _config_modules(self, x, rkhs_layers, n_rkhs, use_bn, rkhs_conv_depth):
         '''
         Configure the modules for extracting fake rkhs embeddings for infomax.
+
+        rkhs_conv_depth: int - how many mlp layers shall be added to the mlp head in the Phi sapce
         '''
         enc_acts = self._forward_acts(x)
         self.dim2layer = {}
@@ -95,8 +109,8 @@ class Encoder(nn.Module):
         self.ndf_7 = enc_acts[self.dim2layer[7]].size(1)
         # configure modules for fake rkhs embeddings
         self.rkhs_block_1 = NopNet()
-        self.rkhs_block_5 = FakeRKHSConvNet(self.ndf_5, n_rkhs, use_bn)
-        self.rkhs_block_7 = FakeRKHSConvNet(self.ndf_7, n_rkhs, use_bn)
+        self.rkhs_block_5 = FakeRKHSConvNet(self.ndf_5, n_rkhs, use_bn, rkhs_conv_depth=rkhs_conv_depth)
+        self.rkhs_block_7 = FakeRKHSConvNet(self.ndf_7, n_rkhs, use_bn, rkhs_conv_depth=rkhs_conv_depth)
 
     def _forward_acts(self, x):
         '''
@@ -173,7 +187,7 @@ class Evaluator(nn.Module):
 class Model(nn.Module):
     def __init__(self, ndf, n_classes, n_rkhs, tclip=20.,
                  n_depth=3, use_bn=False, encoder_size=32,
-                 loss_predictions=None):
+                 loss_predictions=None, rkhs_conv_depth=0):
         super(Model, self).__init__()
         self.hyperparams = {
             'ndf': ndf,
@@ -182,7 +196,8 @@ class Model(nn.Module):
             'tclip': tclip,
             'n_depth': n_depth,
             'encoder_size': encoder_size,
-            'use_bn': use_bn
+            'use_bn': use_bn,
+            'rkhs_conv_depth': rkhs_conv_depth
         }
 
         # self.n_rkhs = n_rkhs
@@ -192,7 +207,7 @@ class Model(nn.Module):
         # encoder that provides multiscale features
         self.encoder = Encoder(dummy_batch, num_channels=3, ndf=ndf,
                                n_rkhs=n_rkhs, n_depth=n_depth,
-                               encoder_size=encoder_size, use_bn=use_bn)
+                               encoder_size=encoder_size, use_bn=use_bn, rkhs_conv_depth=rkhs_conv_depth)
         rkhs_1, rkhs_5, _ = self.encoder(dummy_batch)
         # convert for multi-gpu use
         self.encoder = nn.DataParallel(self.encoder)
@@ -409,11 +424,22 @@ class MLPClassifier(nn.Module):
         return logits
 
 class FakeRKHSConvNet(nn.Module):
-    def __init__(self, n_input, n_output, use_bn=False):
+    def __init__(self, n_input, n_output, use_bn=False, rkhs_conv_depth=0):
         super(FakeRKHSConvNet, self).__init__()
         self.conv1 = nn.Conv2d(n_input, n_output, kernel_size=1, stride=1,
                                padding=0, bias=False)
         self.relu1 = nn.ReLU(inplace=True)
+
+        self.rkhs_mlp_conv = []
+        for i in range(rkhs_conv_depth):
+            self.rkhs_mlp_conv.append({
+                'i': i,
+                'conv': nn.Conv2d(n_output, n_output, kernel_size=1, stride=1,
+                               padding=0, bias=False),
+                'relu': nn.ReLU(inplace=True),
+                'bn': MaybeBatchNorm2d(n_output, True, use_bn)
+            })
+
         self.conv2 = nn.Conv2d(n_output, n_output, kernel_size=1, stride=1,
                                padding=0, bias=False)
         # BN is optional for hidden layer and always for output layer
@@ -435,13 +461,25 @@ class FakeRKHSConvNet(nn.Module):
         # -- rescale the default init for nn.Conv2d layers
         nn.init.kaiming_uniform_(self.conv1.weight, a=math.sqrt(5))
         self.conv1.weight.data.mul_(init_scale)
+
+        for pair in self.rkhs_mlp_conv:
+            nn.init.kaiming_uniform_(pair['conv'].weight, a=math.sqrt(5))
+            pair['conv'].weight.data.mul_(init_scale)
+
         # initialize second conv in res branch
         # -- set to 0, like fixup/zero init
         nn.init.constant_(self.conv2.weight, 0.)
         return
 
     def forward(self, x):
-        h_res = self.conv2(self.relu1(self.bn_hid(self.conv1(x))))
+        h_relu_conv1 = self.relu1(self.bn_hid(self.conv1(x)))
+        for pair in self.rkhs_mlp_conv:
+            if 'bn' in pair:
+                h_relu_conv1 = pair['relu'](pair['bn'](pair['conv'](h_relu_conv1)))
+            else:
+                raise BaseException(' ')
+
+        h_res = self.conv2(h_relu_conv1)
         h = self.bn_out(h_res + self.shortcut(x))
         return h
 
