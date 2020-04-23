@@ -434,15 +434,26 @@ class FakeRKHSConvNet(nn.Module):
         self.relu1 = nn.ReLU(inplace=True)
 
 
-        self.hidden_conv_1 = nn.Conv2d(n_output, n_output, kernel_size=1, stride=1, padding=0, bias=False)
-        self.hidden_relu_1 = nn.ReLU(inplace=True)
-        self.hidden_bn_1 = MaybeBatchNorm2d(n_output, True, use_bn)
-        self.hidden_conv_2 = nn.Conv2d(n_output, n_output, kernel_size=1, stride=1, padding=0, bias=False)
-        self.hidden_relu_2 = nn.ReLU(inplace=True)
-        self.hidden_bn_2 = MaybeBatchNorm2d(n_output, True, use_bn)
-        self.hidden_conv_3 = nn.Conv2d(n_output, n_output, kernel_size=1, stride=1, padding=0, bias=False)
-        self.hidden_relu_3 = nn.ReLU(inplace=True)
-        self.hidden_bn_3 = MaybeBatchNorm2d(n_output, True, use_bn)
+        parts = []
+        for i in range(3):
+            parts.append(nn.Conv2d(n_output, n_output, kernel_size=1, stride=1, padding=0, bias=False))
+            parts.append(nn.ReLU(inplace=True))
+            parts.append(MaybeBatchNorm2d(n_output, True, use_bn))
+
+
+
+        self.hidden_part = nn.Sequential(*parts)
+
+        #
+        # self.hidden_conv_1 = nn.Conv2d(n_output, n_output, kernel_size=1, stride=1, padding=0, bias=False)
+        # self.hidden_relu_1 = nn.ReLU(inplace=True)
+        # self.hidden_bn_1 = MaybeBatchNorm2d(n_output, True, use_bn)
+        # self.hidden_conv_2 = nn.Conv2d(n_output, n_output, kernel_size=1, stride=1, padding=0, bias=False)
+        # self.hidden_relu_2 = nn.ReLU(inplace=True)
+        # self.hidden_bn_2 = MaybeBatchNorm2d(n_output, True, use_bn)
+        # self.hidden_conv_3 = nn.Conv2d(n_output, n_output, kernel_size=1, stride=1, padding=0, bias=False)
+        # self.hidden_relu_3 = nn.ReLU(inplace=True)
+        # self.hidden_bn_3 = MaybeBatchNorm2d(n_output, True, use_bn)
 
         # self.rkhs_mlp_conv = []
         # for i in range(rkhs_conv_depth):
@@ -476,12 +487,21 @@ class FakeRKHSConvNet(nn.Module):
         nn.init.kaiming_uniform_(self.conv1.weight, a=math.sqrt(5))
         self.conv1.weight.data.mul_(init_scale)
 
-        nn.init.kaiming_uniform_(self.hidden_conv_1.weight, a=math.sqrt(5))
-        self.hidden_conv_1.weight.data.mul_(init_scale)
-        nn.init.kaiming_uniform_(self.hidden_conv_2.weight, a=math.sqrt(5))
-        self.hidden_conv_2.weight.data.mul_(init_scale)
-        nn.init.kaiming_uniform_(self.hidden_conv_3.weight, a=math.sqrt(5))
-        self.hidden_conv_3.weight.data.mul_(init_scale)
+
+        def init_weights_sequential(m):
+            if type(m) == nn.Conv2d:
+                nn.init.kaiming_uniform_(m.weight, a=math.sqrt(5))
+                m.weight.data.mul_(init_scale)
+
+        self.hidden_part.apply(init_weights_sequential)
+
+
+        # nn.init.kaiming_uniform_(self.hidden_conv_1.weight, a=math.sqrt(5))
+        # self.hidden_conv_1.weight.data.mul_(init_scale)
+        # nn.init.kaiming_uniform_(self.hidden_conv_2.weight, a=math.sqrt(5))
+        # self.hidden_conv_2.weight.data.mul_(init_scale)
+        # nn.init.kaiming_uniform_(self.hidden_conv_3.weight, a=math.sqrt(5))
+        # self.hidden_conv_3.weight.data.mul_(init_scale)
 
 
         # initialize second conv in res branch
@@ -502,9 +522,10 @@ class FakeRKHSConvNet(nn.Module):
         # print(self.conv1.weight.type(), x.type())
         h_relu_conv1 = self.relu1(self.bn_hid(self.conv1(x)))
 
-        h_relu_conv1 = self.hidden_relu_1(self.hidden_bn_1(self.hidden_conv_1(h_relu_conv1)))
-        h_relu_conv1 = self.hidden_relu_2(self.hidden_bn_2(self.hidden_conv_2(h_relu_conv1)))
-        h_relu_conv1 = self.hidden_relu_3(self.hidden_bn_3(self.hidden_conv_3(h_relu_conv1)))
+        h_relu_conv1 = self.hidden_part(h_relu_conv1)
+        # h_relu_conv1 = self.hidden_relu_1(self.hidden_bn_1(self.hidden_conv_1(h_relu_conv1)))
+        # h_relu_conv1 = self.hidden_relu_2(self.hidden_bn_2(self.hidden_conv_2(h_relu_conv1)))
+        # h_relu_conv1 = self.hidden_relu_3(self.hidden_bn_3(self.hidden_conv_3(h_relu_conv1)))
 
         h_res = self.conv2(h_relu_conv1)
         h = self.bn_out(h_res + self.shortcut(x))
