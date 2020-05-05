@@ -1,3 +1,30 @@
+# Deep PTL Project
+
+This code is based on the AMDIM paper. Thus, you can finde the complete readme below.
+
+```bash
+python train.py --ndf 128 --n_rkhs 1024 --batch_size 140 --tclip 20.0 
+--n_depth 8 --dataset FALLINGTHINGS_RGB_D
+--baseline 
+--modality_to_test=rgb
+--use_randaugment --epochs=130
+--input_dir=/home/meyerjo/dataset/falling-things-rgb-d/ 
+--output_dir=./results 
+```
+with
+
+`--baseline` activating the joint computation of feature extractor and classifier
+
+`--modality_to_test` specifies which modality to use in testing either `rgb` or `depth`
+
+`--input_dir` - dataset dir
+
+`--output_dir` output dir
+
+`--dataset` dataset
+
+
+
 # Learning Representations by Maximizing Mutual Information Across Views
 
 ## Introduction
