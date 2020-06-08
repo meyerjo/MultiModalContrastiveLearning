@@ -37,6 +37,7 @@ class Dataset(Enum):
     NYU_RGBD = 10
     NYU_RGBD_ABLATION = 11
     NYU_RGBD_SQUARED = 12
+    FALLINGTHINGS_RGB_DJET_BACKGROUND = 13
 
 
 def get_encoder_size(dataset):
@@ -49,6 +50,8 @@ def get_encoder_size(dataset):
     if dataset == Dataset.FALLINGTHINGS:
         return 128
     if dataset == Dataset.FALLINGTHINGS_RGB_DJET:
+        return 128
+    if dataset == Dataset.FALLINGTHINGS_RGB_DJET_BACKGROUND:
         return 128
     if dataset == Dataset.SUN_RGBD:
         return 128
@@ -327,6 +330,31 @@ def build_dataset(dataset, batch_size, input_dir=None,
             modality=modality,
             normalizer_mod1=falling_things.NORMALIZATION_PARAMS['RGB'],
             normalizer_mod2=falling_things.NORMALIZATION_PARAMS['JET-DEPTH']
+        )
+        test_transform = train_transform.test_transform
+
+        if modality == 'rgb':
+            file_regex = re.compile('\.(left|right)\.jpg$')
+        elif modality == 'd' or modality == 'depth':
+            file_regex = re.compile('\.(left|right)\.colorized\.depth\.png$')
+        else:
+            file_regex = None
+
+        train_dataset = Falling_Things_Dataset(
+            root=train_dir, train=True, transform=train_transform,
+            file_filter_regex=file_regex, label_proportion=label_proportion
+        )
+        test_dataset = Falling_Things_Dataset(
+            root=val_dir, train=False, transform=test_transform,
+            file_filter_regex=file_regex
+        )
+    elif dataset == Dataset.FALLINGTHINGS_RGB_DJET_BACKGROUND:
+        # NOTE: Background num_classes
+        num_classes = 22
+        train_transform = TransformsFallingThings128(
+            modality=modality,
+            normalizer_mod1=falling_things.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=falling_things.NORMALIZATION_PARAMS['DEPTH'],
         )
         test_transform = train_transform.test_transform
 
