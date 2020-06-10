@@ -16,7 +16,7 @@ from costs import loss_xent
 
 CURRENT_TIME = lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
+def _train(model, optim_inf, scheduler_inf, checkpointer, epochs,
            train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test,
            baseline_training=False, label_proportion=None):
     '''
@@ -38,7 +38,7 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
     torch.cuda.empty_cache()
 
     # prepare checkpoint and stats accumulator
-    next_epoch, total_updates = checkpoint.get_current_position()
+    next_epoch, total_updates = checkpointer.get_current_position()
     fast_stats = AverageMeterSet()
     # run main training loop
     for epoch in range(next_epoch, epochs):
@@ -166,12 +166,11 @@ def _train(model, optim_inf, scheduler_inf, checkpoint, epochs,
         print(diag_str)
         sys.stdout.flush()
         stat_tracker.record_stats(epoch_stats.averages(epoch, prefix='costs/'))
-        # checkpoint the model
-        checkpoint.update(epoch + 1, total_updates)
+        checkpointer.update(epoch + 1, total_updates)
 
 
 def train_self_supervised(model, learning_rate, dataset, train_loader,
-                          test_loader, stat_tracker, checkpoint, log_dir, device,
+                          test_loader, stat_tracker, checkpointer, log_dir, device,
                           modality_to_test, baseline_training=False, overwrite_epochs=None,
                           label_proportion=None):
     # configure optimizer
@@ -193,6 +192,6 @@ def train_self_supervised(model, learning_rate, dataset, train_loader,
     if overwrite_epochs is not None:
         epochs = overwrite_epochs
     # train the model
-    _train(model, optimizer, scheduler, checkpoint, epochs,
+    _train(model, optimizer, scheduler, checkpointer, epochs,
            train_loader, test_loader, stat_tracker, log_dir, device, modality_to_test,
            baseline_training, label_proportion=label_proportion)
