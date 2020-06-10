@@ -504,7 +504,8 @@ def _get_directories(dataset, input_dir):
         val_dir = os.path.join(input_dir, 'places205_256_val/')
     elif dataset == Dataset.FALLINGTHINGS or \
             dataset == Dataset.FALLINGTHINGS_RGB_DJET or \
-            dataset == Dataset.FALLINGTHINGS_RGB_D:
+            dataset == Dataset.FALLINGTHINGS_RGB_D or \
+            dataset == Dataset.FALLINGTHINGS_RGB_D_BACKGROUND:
         train_dir = os.path.join(input_dir, 'train')
         val_dir = os.path.join(input_dir, 'val')
     elif dataset == Dataset.SUN_RGBD:
