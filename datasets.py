@@ -37,7 +37,7 @@ class Dataset(Enum):
     NYU_RGBD = 10
     NYU_RGBD_ABLATION = 11
     NYU_RGBD_SQUARED = 12
-    FALLINGTHINGS_RGB_DJET_BACKGROUND = 13
+    FALLINGTHINGS_RGB_D_BACKGROUND = 13
 
 
 def get_encoder_size(dataset):
@@ -51,7 +51,7 @@ def get_encoder_size(dataset):
         return 128
     if dataset == Dataset.FALLINGTHINGS_RGB_DJET:
         return 128
-    if dataset == Dataset.FALLINGTHINGS_RGB_DJET_BACKGROUND:
+    if dataset == Dataset.FALLINGTHINGS_RGB_D_BACKGROUND:
         return 128
     if dataset == Dataset.SUN_RGBD:
         return 128
@@ -348,7 +348,7 @@ def build_dataset(dataset, batch_size, input_dir=None,
             root=val_dir, train=False, transform=test_transform,
             file_filter_regex=file_regex
         )
-    elif dataset == Dataset.FALLINGTHINGS_RGB_DJET_BACKGROUND:
+    elif dataset == Dataset.FALLINGTHINGS_RGB_D_BACKGROUND:
         # NOTE: Background num_classes
         num_classes = 22
         train_transform = TransformsFallingThings128(
