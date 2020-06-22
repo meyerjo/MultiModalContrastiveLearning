@@ -17,6 +17,7 @@ from augmentation.nyu_rgbd import Transforms_NYU_RGBD
 from data_io.falling_things import Falling_Things_Dataset
 from data_io.nyu_rgbd import NYU_RGBD_Dataset
 from data_io.nyu_rgbd_squared import NYU_RGBD_Dataset_Squared
+from data_io.scene_net import Scene_Net_Dataset
 from data_io.sun_rgbd import Sun_RGBD_Dataset
 from data_io.washington_rgbd import Washington_RGBD_Dataset
 
@@ -38,6 +39,7 @@ class Dataset(Enum):
     NYU_RGBD_ABLATION = 11
     NYU_RGBD_SQUARED = 12
     FALLINGTHINGS_RGB_D_BACKGROUND = 13
+    SCENE_NET = 14
 
 
 def get_encoder_size(dataset):
@@ -56,6 +58,8 @@ def get_encoder_size(dataset):
     if dataset == Dataset.SUN_RGBD:
         return 128
     if dataset == Dataset.WASHINGTON:
+        return 128
+    if dataset == Dataset.SCENE_NET:
         return 128
     if dataset == Dataset.NYU_RGBD or \
             dataset == Dataset.NYU_RGBD_ABLATION or \
@@ -430,6 +434,26 @@ def build_dataset(dataset, batch_size, input_dir=None,
             root=val_dir, train=False,
             transform=test_transform, modality=modality
         )
+    elif dataset == Dataset.SCENE_NET:
+        assert(label_proportion is None)
+        num_classes = 16
+        print('Using the transformation from NYU RGBD dataset')
+        train_transform = Transforms_NYU_RGBD(
+            modality=modality,
+            normalizer_mod1=nyu_rgbd.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=nyu_rgbd.NORMALIZATION_PARAMS['DEPTH'],
+            use_randaugment=use_randaugment
+        )
+        test_transform = train_transform.test_transform
+
+        train_dataset = Scene_Net_Dataset(
+            root=train_dir, train=True,
+            transform=train_transform, modality=modality
+        )
+        test_dataset = Scene_Net_Dataset(
+            root=val_dir, train=False,
+            transform=test_transform, modality=modality
+        )
     elif dataset == Dataset.NYU_RGBD_ABLATION:
         assert label_proportion is None, 'label_proportion not implemented'
         num_classes = 19
@@ -511,6 +535,9 @@ def _get_directories(dataset, input_dir):
     elif dataset == Dataset.SUN_RGBD:
         train_dir = input_dir
         val_dir = input_dir
+    elif dataset == Dataset.SCENE_NET:
+        train_dir = os.path.join(input_dir, 'train')
+        val_dir = os.path.join(input_dir, 'val')
     elif dataset == Dataset.WASHINGTON:
         train_dir = input_dir
         val_dir = input_dir
