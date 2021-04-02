@@ -36,6 +36,7 @@ class Falling_Things_Dataset(VisionDataset):
                 (os.path.join(self.root, c, f), c, f) for f in os.listdir(os.path.join(self.root, c))
                 if os.path.isfile(os.path.join(self.root, c, f))
             ]
+        print('Filtering with regex: ' + str(file_filter_regex))
         if file_filter_regex is not None:
             files_list = [f for f in files_list if file_filter_regex.search(f[0]) is not None]
          
