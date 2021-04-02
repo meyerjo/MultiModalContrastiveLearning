@@ -7,7 +7,7 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--input_path', type=str)
     parser.add_argument('--output_path', type=str, default=None)
-
+    parser.add_argument('--n_classes', type=int, default=51)
     args = parser.parse_args()
 
     if not os.path.exists(args.input_path):
@@ -25,19 +25,29 @@ if __name__ == '__main__':
         'evaluator.block_glb_lin.block_forward.2.bias']
 
 
-    for key, item in model['model'].items():
-        print(key, item.shape)
 
     for key, item in model['model'].items():
         if key in relevant_tensors:
             old_item_shape = item.shape
-            model['model'][key] = item[:19, ...]
+            print(key, type(model['model'][key]), item.shape)
+            if 'weight' in key:
+                w = torch.empty(args.n_classes, item.shape[1])
+                torch.nn.init.xavier_uniform_(w)
+                item = w
+                model['model'][key] = w
+            elif 'bias' in key:
+                w = torch.zeros([args.n_classes])
+                # torch.nn.init.xavier_uniform_(w)
+                item = w
+                model['model'][key] = w
+            else:
+                raise BaseException('Neither weight nor bias in the key name')
+            
+            # model['model'][key] = item[:19, ...] # this was removed on 2020-02-27
             print(key, item, old_item_shape, item.shape)
 
-    for key, item in model['model'].items():
-        print(key, item.shape)
-
-    model['hyperparams']['n_classes'] = 19
+    if 'hyperparams' in model:
+        model['hyperparams']['n_classes'] = 19
 
     if args.output_path is not None:
         torch.save(model, args.output_path)
