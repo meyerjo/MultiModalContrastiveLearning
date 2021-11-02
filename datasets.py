@@ -577,5 +577,5 @@ def _get_directories(dataset, input_dir):
         train_dir = input_dir
         val_dir = input_dir
     else:
-        raise 'Data directories for dataset ' + dataset + ' are not defined'
+        raise 'Data directories for dataset ' + str(dataset) + ' are not defined'
     return train_dir, val_dir
