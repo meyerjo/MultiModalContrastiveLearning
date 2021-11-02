@@ -7,10 +7,11 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 
-from augmentation import falling_things, washington_rgbd, nyu_rgbd, nyu_rgbd_squared
+from augmentation import falling_things, washington_rgbd, nyu_rgbd, nyu_rgbd_squared, sick_rgbd
 from augmentation import sun_rgbd
 from augmentation.falling_things import TransformsFallingThings128
 from augmentation.nyu_rgbd_ablation import Transforms_NYU_RGBD_Ablation
+from augmentation.sick_rgbd import Transforms_SICK_RGBD
 from augmentation.sun_rgbd import Transforms_Sun_RGBD
 from augmentation.washington_rgbd import Transforms_Washington_RGBD
 from augmentation.nyu_rgbd import Transforms_NYU_RGBD
@@ -18,6 +19,7 @@ from data_io.falling_things import Falling_Things_Dataset
 from data_io.nyu_rgbd import NYU_RGBD_Dataset
 from data_io.nyu_rgbd_squared import NYU_RGBD_Dataset_Squared
 from data_io.scene_net import Scene_Net_Dataset
+from data_io.sick import Sick_Data
 from data_io.sun_rgbd import Sun_RGBD_Dataset
 from data_io.washington_rgbd import Washington_RGBD_Dataset
 
@@ -40,6 +42,7 @@ class Dataset(Enum):
     NYU_RGBD_SQUARED = 12
     FALLINGTHINGS_RGB_D_BACKGROUND = 13
     SCENE_NET = 14
+    SICK = 15
 
 
 def get_encoder_size(dataset):
@@ -61,6 +64,8 @@ def get_encoder_size(dataset):
         return 128
     if dataset == Dataset.SCENE_NET:
         return 128
+    if dataset == Dataset.SICK:
+        return 256
     if dataset == Dataset.NYU_RGBD or \
             dataset == Dataset.NYU_RGBD_ABLATION or \
             dataset == Dataset.NYU_RGBD_SQUARED:
@@ -496,6 +501,29 @@ def build_dataset(dataset, batch_size, input_dir=None,
             root=val_dir, train=False,
             transform=test_transform, modality=modality
         )
+    elif dataset == Dataset.SICK:
+        assert label_proportion is None, 'label_proportion not implemented'
+        num_classes = 2
+
+        train_transform = Transforms_SICK_RGBD(
+            modality=modality,
+            normalizer_mod1=sick_rgbd.NORMALIZATION_PARAMS['RGB'],
+            normalizer_mod2=sick_rgbd.NORMALIZATION_PARAMS['DEPTH'],
+            use_randaugment=use_randaugment,
+            depth_augmentation_set=depth_augmentation_type_set
+        )
+        test_transform = train_transform.test_transform
+
+        train_dataset = Sick_Data(
+            root=train_dir, train=True,
+            transform=train_transform, modality=modality
+        )
+        test_dataset = Sick_Data(
+            root=val_dir, train=False,
+            transform=test_transform, modality=modality
+        )
+    else:
+        raise AssertionError('dataset_dict came to an end')
 
     # build pytorch dataloaders for the datasets
     train_loader = \
@@ -512,7 +540,6 @@ def build_dataset(dataset, batch_size, input_dir=None,
                                     pin_memory=True,
                                     drop_last=True,
                                     num_workers=16)
-
     return train_loader, test_loader, num_classes
 
 
