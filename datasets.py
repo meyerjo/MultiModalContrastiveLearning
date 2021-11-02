@@ -65,7 +65,7 @@ def get_encoder_size(dataset):
     if dataset == Dataset.SCENE_NET:
         return 128
     if dataset == Dataset.SICK:
-        return 256
+        return 128
     if dataset == Dataset.NYU_RGBD or \
             dataset == Dataset.NYU_RGBD_ABLATION or \
             dataset == Dataset.NYU_RGBD_SQUARED:
@@ -571,6 +571,9 @@ def _get_directories(dataset, input_dir):
     elif dataset == Dataset.NYU_RGBD \
             or dataset == Dataset.NYU_RGBD_ABLATION \
             or dataset == Dataset.NYU_RGBD_SQUARED:
+        train_dir = input_dir
+        val_dir = input_dir
+    elif dataset == Dataset.SICK:
         train_dir = input_dir
         val_dir = input_dir
     else:
