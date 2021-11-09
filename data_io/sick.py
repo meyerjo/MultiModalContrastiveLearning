@@ -72,20 +72,24 @@ class Sick_Data(VisionDataset):
                 # generate the paths
                 _rgb_path = self.root / _class_dir / 'rgb' / file
                 _depth_path = self.root / _class_dir / 'depth' / file
+                rgb_im, depth_im = None, None
+                if modality != 'depth':
+                    rgb_im = np.array(Image.open(_rgb_path))
+                if modality != 'rgb':
+                    depth_im = np.array(Image.open(_depth_path))
 
                 if modality == 'rgb':
-                    rgb_im = np.array(Image.open(_rgb_path))
+                    assert rgb_im is not None
                     entry = {
                         'data': [rgb_im], 'modality': ['rgb']
                     }
                 elif modality == 'depth' or modality == 'd':
-                    depth_im = np.array(Image.open(_depth_path))
+                    assert depth_im is not None
                     entry = {
                         'data': [depth_im], 'modality': ['depth']
                     }
                 else:
-                    rgb_im = np.array(Image.open(_rgb_path))
-                    depth_im = np.array(Image.open(_depth_path))
+                    assert rgb_im is not None and depth_im is not None
                     entry = {
                         'data': [rgb_im, depth_im],
                         'modality': ['rgb', 'depth']
