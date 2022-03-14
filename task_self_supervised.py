@@ -61,6 +61,11 @@ def _train(model, optim_inf, scheduler_inf, checkpointer, epochs,
 
             images1 = images1.float().to(device)
             images2 = images2.float().to(device)
+
+            # TODO: squeeze operations are a late change to run it on a custom dataset. Maybe not required
+            images1 = images1.squeeze()
+            images2 = images2.squeeze()
+
             # run forward pass through model to get global and local features
             if baseline_training:
                 if _ == 0:

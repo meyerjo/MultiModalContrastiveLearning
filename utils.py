@@ -16,6 +16,8 @@ def test_model(model, test_loader, device, stats, max_evals=200000, feat_selecti
 
     def get_correct_count(lgt_vals, lab_vals, top_k=1):
         # count how many predictions match the target labels
+        if lgt_vals.shape[-1] < top_k:
+            top_k = lgt_vals.shape[-1]
         max_lgt = torch.topk(lgt_vals.cpu().data, k=top_k)[1]
         if top_k == 1:
             max_lgt = max_lgt.flatten()
@@ -53,6 +55,7 @@ def test_model(model, test_loader, device, stats, max_evals=200000, feat_selecti
             #`print('Selecting modality: {}'.format(modalities[ind]))
         else:
             images = images.to(device)
+        images = images.squeeze()
         labels = labels.cpu()
         with torch.no_grad():
             res_dict = model(x1=images, x2=images, class_only=True)
@@ -108,6 +111,7 @@ def _warmup_batchnorm(model, data_loader, device, batches=100, train_loader=Fals
             images = images[ind]
         else:
             images = images.to(device)
+        images = images.squeeze()
         _ = model(x1=images, x2=images, class_only=True)
 
 
