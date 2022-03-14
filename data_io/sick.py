@@ -78,6 +78,12 @@ class Sick_Data(VisionDataset):
                 if modality != 'rgb':
                     depth_im = np.array(Image.open(_depth_path))
 
+                # rgb_im is not None
+                if rgb_im is not None:
+                    assert len(rgb_im.shape) == 3 and rgb_im.shape[-1] == 3
+                    mean_im = np.mean(rgb_im, axis=-1).astype(np.uint8)
+                    rgb_im = np.repeat(np.expand_dims(mean_im, -1), 3, axis=-1)
+
                 if modality == 'rgb':
                     assert rgb_im is not None
                     entry = {
