@@ -37,4 +37,4 @@ ENV EPOCHS=5
 VOLUME /data
 VOLUME /result
 
-CMD python train.py --dataset=$DATASET --input_dir=/data --batch_size=16 --ndf=128 --n_rkhs=256 --n_depth=3 --output_dir=/result/ --modality=dual --modality_to_test=$TEST_MODALITY --epochs=$EPOCHS
+CMD python train.py --dataset=$DATASET --input_dir=/data --batch_size=16 --ndf=128 --n_rkhs=1024 --n_depth=3 --output_dir=/result/ --modality=dual --modality_to_test=$TEST_MODALITY --epochs=$EPOCHS
