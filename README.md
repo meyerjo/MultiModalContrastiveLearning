@@ -1,4 +1,4 @@
-# Deep PTL Project
+# Multiview constrastive encoding
 
 This code is based on the AMDIM paper. Thus, you can finde the complete readme below.
 
